@@ -3,6 +3,7 @@ package com.contrapposto.app.config;
 import com.contrapposto.app.security.CustomUserDetailsService;
 import com.contrapposto.app.security.FormLoginSuccessHandler;
 import com.contrapposto.app.security.OAuth2AuthenticationSuccessHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -19,6 +21,9 @@ public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final OAuth2AuthenticationSuccessHandler oAuth2SuccessHandler;
     private final FormLoginSuccessHandler formLoginSuccessHandler;
+
+    @Autowired(required = false)
+    private ClientRegistrationRepository clientRegistrationRepository;
 
     public SecurityConfig(CustomUserDetailsService customUserDetailsService,
                           OAuth2AuthenticationSuccessHandler oAuth2SuccessHandler,
@@ -44,14 +49,17 @@ public class SecurityConfig {
                 .failureUrl("/login?error=true")
                 .permitAll()
             )
-            .oauth2Login(oauth2 -> oauth2
-                .loginPage("/login")
-                .successHandler(oAuth2SuccessHandler)
-            )
             .logout(logout -> logout
                 .logoutSuccessUrl("/")
                 .permitAll()
             );
+
+        if (clientRegistrationRepository != null) {
+            http.oauth2Login(oauth2 -> oauth2
+                .loginPage("/login")
+                .successHandler(oAuth2SuccessHandler)
+            );
+        }
 
         return http.build();
     }
@@ -63,8 +71,7 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(customUserDetailsService);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(customUserDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
