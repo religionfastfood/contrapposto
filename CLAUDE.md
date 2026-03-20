@@ -1,5 +1,6 @@
 # CLAUDE.md
 
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Build & Run Commands
@@ -8,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Build
 ./mvnw clean package
 
-# Run the application
+# Run the application (requires Java 21)
 ./mvnw spring-boot:run
 
 # Run all tests
@@ -24,19 +25,58 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Tech Stack
 
 - **Java 21** / **Spring Boot 4.0.4**
-- **Spring MVC** with **Thymeleaf** templates + **HTMX** (`htmx-spring-boot-thymeleaf 5.0.0`) for server-driven interactivity
-- **Spring Security** with **OAuth2 client** login; Thymeleaf Security extras for template-level auth checks
-- **Spring Data JPA** with **HSQLDB** (in-memory) for persistence
-- **Spring AI 2.0.0-M3** with the Anthropic model starter (`spring-ai-starter-model-anthropic`)
-- **Lombok** for reducing boilerplate
+- **Spring MVC** with **Thymeleaf** + **HTMX** (`htmx-spring-boot-thymeleaf 5.0.0`) for server-driven interactivity
+- **Spring Security 7** with form login + conditional Google OAuth2; Thymeleaf Security extras for template-level auth checks
+- **Spring Data JPA** with **HSQLDB** (in-memory, dev only)
+- **Spring AI 2.0.0-M3** with Anthropic model starter
+- **Lombok**
+- **Bootstrap 5.3** + **HTMX 2.0** via CDN; navy/cream color theme
 
-## Architecture Notes
+## Environment Variables
 
-This project is in early scaffolding stage. The intended architecture is a server-side-rendered web app where:
+| Variable | Purpose |
+|---|---|
+| `GOOGLE_CLIENT_ID` | Google OAuth2 (optional — app runs without it) |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth2 (optional) |
 
-- Thymeleaf renders HTML pages, with HTMX handling partial page updates without a full JS frontend framework
-- Spring Security secures routes via OAuth2 (provider config will need to be added to `application.properties`)
-- Spring AI integrates Claude (Anthropic) as the AI backend — configure via `spring.ai.anthropic.api-key` in `application.properties` or environment
-- JPA entities + repositories will back persistence with HSQLDB in dev (swap to a persistent DB for production)
+Google OAuth2 is disabled by default. To enable, uncomment the three lines in `application.properties` and set the env vars.
 
-The base package is `com.contrapposto.app`.
+## Architecture
+
+Server-side-rendered app. Thymeleaf renders full pages; HTMX handles partial updates (e.g. the registration role-selection flow loads the signup form inline without a page reload).
+
+**Package structure** (`com.contrapposto.app`):
+- `model/` — JPA entities and enums (`User`, `Role`, `AuthProvider`)
+- `repository/` — Spring Data JPA repositories
+- `dto/` — Form-binding objects (`RegisterRequest`)
+- `service/` — Business logic interfaces + implementations
+- `security/` — `UserPrincipal`, `CustomUserDetailsService`, success handlers
+- `config/` — `SecurityConfig`
+- `controller/` — MVC controllers
+- `src/main/resources/templates/` — Thymeleaf templates; shared fragments in `fragments/layout.html`
+
+**Auth flow:**
+- Form login uses `CustomUserDetailsService` → `UserPrincipal` → `FormLoginSuccessHandler` (redirects by role)
+- Google OAuth2 (when enabled): user selects role first → role stored in HTTP session → `OAuth2AuthenticationSuccessHandler` creates account on callback
+- Routes: `/organizer/**` requires `ROLE_ORGANIZER`, `/model/**` requires `ROLE_MODEL`
+
+## App Description
+
+Contrapposto is a scheduling platform for **Life Drawing events** (artists gather to draw a human model pose). Three user types: Organizer, Model, Anonymous.
+
+**Subscription model** (Stripe, Phase 2):
+- Free for anonymous users
+- Models: $5/mo or $48/yr; Organizers: $10/mo or $96/yr
+- First month free trial, payment method required upfront
+- Lapsed organizer: can view past events, cannot post new ones
+- Lapsed model: hidden from search, but still shown on assigned events
+
+## Build Phases
+
+- **Phase 1 — Foundation** ✅ COMPLETE — User/auth/registration/dashboards
+- **Phase 2 — Stripe Subscriptions** — Checkout, webhooks, subscription enforcement
+- **Phase 3 — Profiles & Photos** — ModelProfile, OrganizerProfile, AWS S3 photo upload
+- **Phase 4 — Events** — Event CRUD, EventType, public listings by city, event detail page
+- **Phase 5 — Applications & Invitations** — Apply/invite flows, approve/decline, email notifications
+
+**Future:** In-app event ticketing via Stripe (design Events with this in mind — store price as amount+currency, keep ticketing as separate entities).
