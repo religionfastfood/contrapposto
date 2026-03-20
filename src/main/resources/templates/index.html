@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Home')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<!-- Hero Section -->
+<section class="hero-section text-center">
+    <div class="container">
+        <h1 class="mb-3">Where Artists Meet Models</h1>
+        <p class="lead mb-4" style="color: rgba(245,240,232,0.85); max-width: 600px; margin: 0 auto;">
+            Contrapposto connects life drawing organizers with professional models.
+            Discover events in your city, build your portfolio, and bring the figure drawing
+            tradition into the modern age.
+        </p>
+        <div class="mt-4 d-flex justify-content-center gap-3" sec:authorize="!isAuthenticated()">
+            <a th:href="@{/register}" class="btn btn-accent btn-lg px-4">Get Started</a>
+            <a th:href="@{/login}" class="btn btn-outline-cream btn-lg px-4">Sign In</a>
+        </div>
+    </div>
+</section>
+
+<!-- City Search -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-7">
+                <h2 class="h4 fw-semibold text-center mb-4" style="color: var(--navy);">
+                    Find Life Drawing Events Near You
+                </h2>
+                <form action="/" method="GET" class="d-flex gap-2">
+                    <input type="text"
+                           name="city"
+                           class="form-control form-control-lg"
+                           placeholder="Enter your city&hellip;"
+                           th:value="${param.city}"
+                           style="border-color: #c8a96e; background-color: #fff;"/>
+                    <button type="submit" class="btn btn-accent btn-lg px-4 text-nowrap">
+                        Search
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="section-divider container"/>
+
+<!-- Upcoming Events -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="h4 fw-semibold mb-4" style="color: var(--navy);">Upcoming Events</h2>
+
+        <div th:if="${param.city == null or #strings.isEmpty(param.city)}"
+             class="text-center py-5">
+            <div class="text-muted" style="font-size: 1.05rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor"
+                     class="bi bi-geo-alt mb-3 d-block mx-auto opacity-50" viewBox="0 0 16 16">
+                    <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"/>
+                    <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                </svg>
+                Enter your city above to discover life drawing events near you.
+            </div>
+        </div>
+
+        <div th:if="${param.city != null and !#strings.isEmpty(param.city)}"
+             class="text-center py-5">
+            <p class="text-muted">
+                No events found for
+                <strong th:text="${param.city}">your city</strong>
+                yet. Check back soon!
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="py-4 mt-5" style="background-color: var(--navy); color: rgba(245,240,232,0.6);">
+    <div class="container text-center">
+        <small>&copy; 2026 Contrapposto &mdash; Life Drawing Event Platform</small>
+    </div>
+</footer>
+
+</body>
+</html>

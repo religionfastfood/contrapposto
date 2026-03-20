@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Register')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5">
+
+    <h2 class="h3 fw-bold text-center mb-2" style="color: var(--navy);">Create Your Account</h2>
+    <p class="text-center text-muted mb-4">Choose how you'd like to participate in Contrapposto.</p>
+
+    <!-- OAuth pending alert -->
+    <div th:if="${param.oauth != null and param.oauth == 'pending'}"
+         class="alert alert-info alert-dismissible fade show mx-auto mb-4"
+         style="max-width: 760px;" role="alert">
+        Please select your role to complete your Google sign-up.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Role selection cards -->
+    <div class="row g-4 justify-content-center mb-5">
+        <div class="col-md-6" style="max-width: 360px;">
+            <div class="card h-100 p-4 text-center">
+                <div class="mb-3" style="font-size: 3rem;">&#127912;</div>
+                <h4 class="fw-bold mb-2" style="color: var(--navy);">I'm a Model</h4>
+                <p class="text-muted mb-4">
+                    Create a profile, upload photos, and get booked for life drawing sessions.
+                    Connect with organizers in your city and grow your artistic career.
+                </p>
+                <button class="btn btn-accent mt-auto"
+                        hx-get="/register/form?role=MODEL"
+                        hx-target="#registration-form"
+                        hx-swap="innerHTML">
+                    Register as Model
+                </button>
+            </div>
+        </div>
+
+        <div class="col-md-6" style="max-width: 360px;">
+            <div class="card h-100 p-4 text-center">
+                <div class="mb-3" style="font-size: 3rem;">&#128101;</div>
+                <h4 class="fw-bold mb-2" style="color: var(--navy);">I'm an Organizer</h4>
+                <p class="text-muted mb-4">
+                    Post events, browse models, and manage your life drawing sessions.
+                    Build a thriving artistic community in your area.
+                </p>
+                <button class="btn btn-accent mt-auto"
+                        hx-get="/register/form?role=ORGANIZER"
+                        hx-target="#registration-form"
+                        hx-swap="innerHTML">
+                    Register as Organizer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HTMX-loaded registration form lands here -->
+    <div id="registration-form" class="row justify-content-center">
+        <!-- populated by HTMX -->
+    </div>
+
+    <p class="text-center text-muted small mt-4">
+        Already have an account?
+        <a th:href="@{/login}" style="color: var(--navy); font-weight: 600;">Sign in</a>
+    </p>
+
+</div>
+
+</body>
+</html>

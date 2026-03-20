@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Organizer Dashboard')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5">
+
+    <div class="mb-5">
+        <h1 class="h2 fw-bold" style="color: var(--navy);">Welcome, Organizer!</h1>
+        <p class="text-muted">Manage your events, discover models, and grow your community.</p>
+        <hr class="section-divider"/>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Post an Event -->
+        <div class="col-md-4">
+            <div class="card h-100 p-4">
+                <div class="mb-3" style="font-size: 2.5rem;">&#128197;</div>
+                <h4 class="fw-bold mb-2" style="color: var(--navy);">Post an Event</h4>
+                <p class="text-muted mb-4">
+                    Create a new life drawing session, set the date, location, and session details.
+                </p>
+                <span class="badge rounded-pill mt-auto"
+                      style="background-color: var(--accent); color: var(--navy); width: fit-content;">
+                    Coming Soon
+                </span>
+            </div>
+        </div>
+
+        <!-- Browse Models -->
+        <div class="col-md-4">
+            <div class="card h-100 p-4">
+                <div class="mb-3" style="font-size: 2.5rem;">&#127912;</div>
+                <h4 class="fw-bold mb-2" style="color: var(--navy);">Browse Models</h4>
+                <p class="text-muted mb-4">
+                    Explore model profiles, view portfolios, and invite models to your sessions.
+                </p>
+                <span class="badge rounded-pill mt-auto"
+                      style="background-color: var(--accent); color: var(--navy); width: fit-content;">
+                    Coming Soon
+                </span>
+            </div>
+        </div>
+
+        <!-- My Events -->
+        <div class="col-md-4">
+            <div class="card h-100 p-4">
+                <div class="mb-3" style="font-size: 2.5rem;">&#128203;</div>
+                <h4 class="fw-bold mb-2" style="color: var(--navy);">My Events</h4>
+                <p class="text-muted mb-4">
+                    View and manage your scheduled sessions, track attendees, and handle applications.
+                </p>
+                <span class="badge rounded-pill mt-auto"
+                      style="background-color: var(--accent); color: var(--navy); width: fit-content;">
+                    Coming Soon
+                </span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
