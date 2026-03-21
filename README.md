@@ -14,7 +14,6 @@ A scheduling platform for life drawing events. Connects organizers who run figur
 - Spring MVC + Thymeleaf + HTMX (server-driven UI, no SPA)
 - Spring Security 7 — form login + optional Google OAuth2
 - Spring Data JPA + HSQLDB (in-memory, dev)
-- Bootstrap 5.3 (navy/cream theme)
 
 ## Getting Started
 
