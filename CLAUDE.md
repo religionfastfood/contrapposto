@@ -1,6 +1,5 @@
 # CLAUDE.md
 
-
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Build & Run Commands
@@ -70,6 +69,17 @@ Contrapposto is a scheduling platform for **Life Drawing events** (artists gathe
 - First month free trial, payment method required upfront
 - Lapsed organizer: can view past events, cannot post new ones
 - Lapsed model: hidden from search, but still shown on assigned events
+
+## Testing Policy
+
+Always write unit tests alongside new code. All tests must pass before any code is pushed — run `./mvnw test` and confirm `BUILD SUCCESS` before pushing. Every new service class gets a `*Test` in `src/test/.../service/`. Every new controller gets a `*Test` in `src/test/.../controller/` using `@WebMvcTest` + `@Import(SecurityConfig.class)`.
+
+**Conventions learned from Spring Boot 4:**
+- Use `@MockitoBean` (not `@MockBean`) — package: `org.springframework.test.context.bean.override.mockito`
+- Use `@WebMvcTest` from `org.springframework.boot.webmvc.test.autoconfigure`
+- Always `@Import(SecurityConfig.class)` in controller tests — it is not auto-detected in the test slice
+- Mock `CustomUserDetailsService`, `FormLoginSuccessHandler`, and `OAuth2AuthenticationSuccessHandler` in every controller test (required by `SecurityConfig` constructor)
+- Use `.with(csrf())` on all POST requests in controller tests
 
 ## Build Phases
 

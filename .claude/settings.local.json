@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(mkdir -p \"C:/Users/chris/IdeaProjects/contrapposto/src/main/java/com/contrapposto/app/model\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/java/com/contrapposto/app/dto\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/java/com/contrapposto/app/repository\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/java/com/contrapposto/app/security\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/java/com/contrapposto/app/service\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/java/com/contrapposto/app/config\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/java/com/contrapposto/app/controller\")",
-      "Bash(mkdir -p \"C:/Users/chris/IdeaProjects/contrapposto/src/main/resources/templates/fragments\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/resources/templates/auth\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/resources/templates/organizer\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/resources/templates/model\")"
+      "Bash(mkdir -p \"C:/Users/chris/IdeaProjects/contrapposto/src/main/resources/templates/fragments\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/resources/templates/auth\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/resources/templates/organizer\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/resources/templates/model\")",
+      "Bash(./mvnw spring-boot:run)",
+      "Read(//c/Program Files/**)",
+      "Bash(./mvnw clean:*)"
     ]
   }
 }

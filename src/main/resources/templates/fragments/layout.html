@@ -11,6 +11,12 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
           crossorigin="anonymous"/>
     <title th:text="${title} + ' | Contrapposto'">Contrapposto</title>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmE6pB8jqnfaM0wmcFafCyH7jxe"
+            crossorigin="anonymous" th:inline="none"></script>
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.0" th:inline="none"></script>
     <style>
         :root {
             --navy: #1a2744;
@@ -138,12 +144,5 @@
     </div>
 </nav>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmE6pB8jqnfaM0wmcFafCyH7jxe"
-        crossorigin="anonymous" th:inline="none"></script>
-
-<!-- HTMX -->
-<script src="https://unpkg.com/htmx.org@2.0.0" th:inline="none"></script>
 
 </html>
