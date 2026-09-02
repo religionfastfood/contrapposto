@@ -78,6 +78,8 @@ Each new phase must be developed on a dedicated feature branch named `phase-N` (
 
 Always write unit tests alongside new code. All tests must pass before any code is pushed — run `./mvnw test` and confirm `BUILD SUCCESS` before pushing. Every new service class gets a `*Test` in `src/test/.../service/`. Every new controller gets a `*Test` in `src/test/.../controller/` using `@WebMvcTest` + `@Import(SecurityConfig.class)`.
 
+**Property-based testing (Phase 2 onward):** Use [jqwik](https://jqwik.net/) for service-layer logic with non-trivial invariants — subscription state rules, pricing calculations, date/availability logic. Every service test class from Phase 2 onward should include at least one `@Property` alongside its example-based `@Test` methods where a meaningful property exists. Annotate PBT test classes with `@ExtendWith(JqwikSpringExtension.class)` if Spring context is needed, otherwise plain `@Property` methods work without any extra annotation.
+
 **Conventions learned from Spring Boot 4:**
 - Use `@MockitoBean` (not `@MockBean`) — package: `org.springframework.test.context.bean.override.mockito`
 - Use `@WebMvcTest` from `org.springframework.boot.webmvc.test.autoconfigure`
