@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Register')}"></head>
 <body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5 d-flex justify-content-center">
+
 <div th:fragment="registerForm" class="col-12" style="max-width: 480px; margin: 0 auto;">
 
     <div class="card p-4">
@@ -26,9 +31,11 @@
                 <input type="email"
                        id="regEmail"
                        th:field="*{email}"
+                       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
                        class="form-control"
                        placeholder="you@example.com"
-                       required autofocus/>
+                       autofocus/>
+                <div class="invalid-feedback" th:errors="*{email}"></div>
             </div>
 
             <div class="mb-3">
@@ -36,9 +43,10 @@
                 <input type="password"
                        id="regPassword"
                        th:field="*{password}"
+                       th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'"
                        class="form-control"
-                       placeholder="At least 8 characters"
-                       required/>
+                       placeholder="At least 8 characters"/>
+                <div class="invalid-feedback" th:errors="*{password}"></div>
             </div>
 
             <div class="mb-4">
@@ -46,9 +54,10 @@
                 <input type="password"
                        id="regConfirmPassword"
                        th:field="*{confirmPassword}"
+                       th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid'"
                        class="form-control"
-                       placeholder="Repeat your password"
-                       required/>
+                       placeholder="Repeat your password"/>
+                <div class="invalid-feedback" th:errors="*{confirmPassword}"></div>
             </div>
 
             <div class="d-grid mb-3">
@@ -79,5 +88,8 @@
     </div>
 
 </div>
+
+</div>
+
 </body>
 </html>

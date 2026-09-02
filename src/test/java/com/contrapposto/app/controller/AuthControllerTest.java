@@ -53,7 +53,7 @@ class AuthControllerTest {
     void getRegisterForm_withModelRole_returnsFragment() throws Exception {
         mockMvc.perform(get("/register/form").param("role", "MODEL"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("auth/register-form-fragment"))
+                .andExpect(view().name("auth/register-form-fragment :: registerForm"))
                 .andExpect(model().attribute("role", Role.MODEL));
     }
 
@@ -61,7 +61,7 @@ class AuthControllerTest {
     void getRegisterForm_withOrganizerRole_returnsFragment() throws Exception {
         mockMvc.perform(get("/register/form").param("role", "ORGANIZER"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("auth/register-form-fragment"))
+                .andExpect(view().name("auth/register-form-fragment :: registerForm"))
                 .andExpect(model().attribute("role", Role.ORGANIZER));
     }
 
@@ -79,19 +79,19 @@ class AuthControllerTest {
     }
 
     @Test
-    void postRegister_withMismatchedPasswords_returnsRegisterViewWithError() throws Exception {
+    void postRegister_withMismatchedPasswords_returnsFormWithError() throws Exception {
         mockMvc.perform(post("/register").with(csrf())
                         .param("email", "test@example.com")
                         .param("password", "password123")
                         .param("confirmPassword", "different")
                         .param("role", "MODEL"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("auth/register"))
+                .andExpect(view().name("auth/register-form-fragment"))
                 .andExpect(model().attributeExists("error"));
     }
 
     @Test
-    void postRegister_withDuplicateEmail_returnsRegisterViewWithError() throws Exception {
+    void postRegister_withDuplicateEmail_returnsFormWithError() throws Exception {
         when(userService.register(any()))
                 .thenThrow(new IllegalArgumentException("An account with that email already exists"));
 
@@ -101,8 +101,56 @@ class AuthControllerTest {
                         .param("confirmPassword", "password123")
                         .param("role", "MODEL"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("auth/register"))
+                .andExpect(view().name("auth/register-form-fragment"))
                 .andExpect(model().attribute("error", "An account with that email already exists"));
+    }
+
+    @Test
+    void postRegister_withBlankEmail_returnsFormWithFieldError() throws Exception {
+        mockMvc.perform(post("/register").with(csrf())
+                        .param("email", "")
+                        .param("password", "password123")
+                        .param("confirmPassword", "password123")
+                        .param("role", "MODEL"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("auth/register-form-fragment"))
+                .andExpect(model().attributeHasFieldErrors("registerRequest", "email"));
+    }
+
+    @Test
+    void postRegister_withInvalidEmailFormat_returnsFormWithFieldError() throws Exception {
+        mockMvc.perform(post("/register").with(csrf())
+                        .param("email", "notanemail")
+                        .param("password", "password123")
+                        .param("confirmPassword", "password123")
+                        .param("role", "MODEL"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("auth/register-form-fragment"))
+                .andExpect(model().attributeHasFieldErrors("registerRequest", "email"));
+    }
+
+    @Test
+    void postRegister_withShortPassword_returnsFormWithFieldError() throws Exception {
+        mockMvc.perform(post("/register").with(csrf())
+                        .param("email", "test@example.com")
+                        .param("password", "short")
+                        .param("confirmPassword", "short")
+                        .param("role", "MODEL"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("auth/register-form-fragment"))
+                .andExpect(model().attributeHasFieldErrors("registerRequest", "password"));
+    }
+
+    @Test
+    void postRegister_withBlankPassword_returnsFormWithFieldError() throws Exception {
+        mockMvc.perform(post("/register").with(csrf())
+                        .param("email", "test@example.com")
+                        .param("password", "")
+                        .param("confirmPassword", "")
+                        .param("role", "MODEL"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("auth/register-form-fragment"))
+                .andExpect(model().attributeHasFieldErrors("registerRequest", "password"));
     }
 
     @Test

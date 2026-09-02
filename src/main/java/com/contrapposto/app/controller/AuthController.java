@@ -5,6 +5,7 @@ import com.contrapposto.app.model.Role;
 import com.contrapposto.app.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -43,24 +44,22 @@ public class AuthController {
     public String registerForm(@RequestParam Role role, Model model) {
         model.addAttribute("role", role);
         model.addAttribute("registerRequest", new RegisterRequest());
-        return "auth/register-form-fragment";
+        return "auth/register-form-fragment :: registerForm";
     }
 
     @PostMapping("/register")
-    public String registerSubmit(@ModelAttribute RegisterRequest registerRequest,
+    public String registerSubmit(@Valid @ModelAttribute RegisterRequest registerRequest,
                                  BindingResult bindingResult,
                                  Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("error", "Please correct the errors below.");
-            model.addAttribute("roles", Role.values());
-            return "auth/register";
+            model.addAttribute("role", registerRequest.getRole());
+            return "auth/register-form-fragment";
         }
 
         if (!registerRequest.getPassword().equals(registerRequest.getConfirmPassword())) {
             model.addAttribute("error", "Passwords do not match.");
             model.addAttribute("role", registerRequest.getRole());
-            model.addAttribute("registerRequest", registerRequest);
-            return "auth/register";
+            return "auth/register-form-fragment";
         }
 
         try {
@@ -68,8 +67,7 @@ public class AuthController {
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("role", registerRequest.getRole());
-            model.addAttribute("registerRequest", registerRequest);
-            return "auth/register";
+            return "auth/register-form-fragment";
         }
 
         return "redirect:/login?registered=true";
