@@ -40,11 +40,17 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-            String targetUrl = switch (user.getRole()) {
-                case ADMIN -> "/admin/dashboard";
-                case ORGANIZER -> "/organizer/dashboard";
-                default -> "/model/dashboard";
-            };
+            String targetUrl;
+            if (user.getRole() == Role.ADMIN) {
+                targetUrl = "/admin/dashboard";
+            } else if (user.getSubscriptionStatus() == com.contrapposto.app.model.SubscriptionStatus.NONE) {
+                targetUrl = "/subscription/plan";
+            } else {
+                targetUrl = switch (user.getRole()) {
+                    case ORGANIZER -> "/organizer/dashboard";
+                    default -> "/model/dashboard";
+                };
+            }
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
             return;
         }
@@ -69,11 +75,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         session.removeAttribute("pendingRole");
 
-        String targetUrl = switch (pendingRole) {
-            case ADMIN -> "/admin/dashboard";
-            case ORGANIZER -> "/organizer/dashboard";
-            default -> "/model/dashboard";
-        };
+        // New OAuth2 users always start with NONE subscription status → plan page
+        String targetUrl = pendingRole == Role.ADMIN ? "/admin/dashboard" : "/subscription/plan";
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 }

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Checkout Cancelled')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5 text-center" style="max-width: 560px;">
+    <h2 class="fw-bold mb-3">No problem.</h2>
+    <p class="text-muted mb-4">Your checkout was cancelled. You can start a trial whenever you're ready.</p>
+    <a th:href="@{/subscription/plan}" class="btn btn-accent px-4">View Plans</a>
+</div>
+
+</body>
+</html>

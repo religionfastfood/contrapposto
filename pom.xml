@@ -111,6 +111,11 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>26.1.0</version>
+        </dependency>
+        <dependency>
             <groupId>net.jqwik</groupId>
             <artifactId>jqwik</artifactId>
             <version>1.9.3</version>

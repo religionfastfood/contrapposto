@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Subscription Confirmed')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5 text-center" style="max-width: 560px;">
+    <h2 class="fw-bold mb-3">You're in.</h2>
+    <p class="text-muted mb-4" th:text="${message}">Your subscription is active.</p>
+    <a th:href="@{/}" class="btn btn-accent px-4">Go to Dashboard</a>
+</div>
+
+</body>
+</html>

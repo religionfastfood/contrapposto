@@ -1,6 +1,7 @@
 package com.contrapposto.app.security;
 
 import com.contrapposto.app.model.Role;
+import com.contrapposto.app.model.SubscriptionStatus;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,10 +20,13 @@ public class FormLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
                                         Authentication authentication) throws IOException, ServletException {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         Role role = principal.getUser().getRole();
+        SubscriptionStatus subStatus = principal.getUser().getSubscriptionStatus();
 
         String targetUrl;
         if (role == Role.ADMIN) {
             targetUrl = "/admin/dashboard";
+        } else if (subStatus == SubscriptionStatus.NONE) {
+            targetUrl = "/subscription/plan";
         } else if (role == Role.ORGANIZER) {
             targetUrl = "/organizer/dashboard";
         } else {
