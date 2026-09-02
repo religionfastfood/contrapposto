@@ -21,7 +21,9 @@ public class FormLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
         Role role = principal.getUser().getRole();
 
         String targetUrl;
-        if (role == Role.ORGANIZER) {
+        if (role == Role.ADMIN) {
+            targetUrl = "/admin/dashboard";
+        } else if (role == Role.ORGANIZER) {
             targetUrl = "/organizer/dashboard";
         } else {
             targetUrl = "/model/dashboard";

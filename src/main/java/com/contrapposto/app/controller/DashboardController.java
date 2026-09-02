@@ -18,4 +18,10 @@ public class DashboardController {
     public String modelDashboard() {
         return "model/dashboard";
     }
+
+    @GetMapping("/admin/dashboard")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String adminDashboard() {
+        return "admin/dashboard";
+    }
 }

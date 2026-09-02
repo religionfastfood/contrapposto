@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Admin Dashboard')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5">
+
+    <div class="mb-5">
+        <h1 class="h2 fw-bold" style="color: var(--navy);">Admin Dashboard</h1>
+        <p class="text-muted">Manage users, subscriptions, and platform settings.</p>
+        <hr class="section-divider"/>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Manage Users -->
+        <div class="col-md-4">
+            <div class="card h-100 p-4">
+                <div class="mb-3" style="font-size: 2.5rem;">&#128100;</div>
+                <h4 class="fw-bold mb-2" style="color: var(--navy);">Manage Users</h4>
+                <p class="text-muted mb-4">
+                    View, disable, or update user accounts and roles.
+                </p>
+                <span class="badge rounded-pill mt-auto"
+                      style="background-color: var(--accent); color: var(--navy); width: fit-content;">
+                    Coming Soon
+                </span>
+            </div>
+        </div>
+
+        <!-- Subscriptions -->
+        <div class="col-md-4">
+            <div class="card h-100 p-4">
+                <div class="mb-3" style="font-size: 2.5rem;">&#128179;</div>
+                <h4 class="fw-bold mb-2" style="color: var(--navy);">Subscriptions</h4>
+                <p class="text-muted mb-4">
+                    View and manually adjust subscription status for any account.
+                </p>
+                <span class="badge rounded-pill mt-auto"
+                      style="background-color: var(--accent); color: var(--navy); width: fit-content;">
+                    Coming Soon
+                </span>
+            </div>
+        </div>
+
+        <!-- Platform Settings -->
+        <div class="col-md-4">
+            <div class="card h-100 p-4">
+                <div class="mb-3" style="font-size: 2.5rem;">&#9881;</div>
+                <h4 class="fw-bold mb-2" style="color: var(--navy);">Platform Settings</h4>
+                <p class="text-muted mb-4">
+                    Configure event types and other platform-wide settings.
+                </p>
+                <span class="badge rounded-pill mt-auto"
+                      style="background-color: var(--accent); color: var(--navy); width: fit-content;">
+                    Coming Soon
+                </span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

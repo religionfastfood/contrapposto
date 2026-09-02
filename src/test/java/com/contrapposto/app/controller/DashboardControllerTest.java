@@ -78,4 +78,35 @@ class DashboardControllerTest {
         mockMvc.perform(get("/model/dashboard"))
                 .andExpect(status().isForbidden());
     }
+
+    // --- Admin dashboard ---
+
+    @Test
+    void adminDashboard_unauthenticated_redirectsToLogin() throws Exception {
+        mockMvc.perform(get("/admin/dashboard"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void adminDashboard_asAdmin_returnsOk() throws Exception {
+        mockMvc.perform(get("/admin/dashboard"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin/dashboard"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ORGANIZER")
+    void adminDashboard_asOrganizer_returnsForbidden() throws Exception {
+        mockMvc.perform(get("/admin/dashboard"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "MODEL")
+    void adminDashboard_asModel_returnsForbidden() throws Exception {
+        mockMvc.perform(get("/admin/dashboard"))
+                .andExpect(status().isForbidden());
+    }
 }

@@ -40,9 +40,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-            String targetUrl = user.getRole() == Role.ORGANIZER
-                    ? "/organizer/dashboard"
-                    : "/model/dashboard";
+            String targetUrl = switch (user.getRole()) {
+                case ADMIN -> "/admin/dashboard";
+                case ORGANIZER -> "/organizer/dashboard";
+                default -> "/model/dashboard";
+            };
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
             return;
         }
@@ -67,9 +69,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         session.removeAttribute("pendingRole");
 
-        String targetUrl = pendingRole == Role.ORGANIZER
-                ? "/organizer/dashboard"
-                : "/model/dashboard";
+        String targetUrl = switch (pendingRole) {
+            case ADMIN -> "/admin/dashboard";
+            case ORGANIZER -> "/organizer/dashboard";
+            default -> "/model/dashboard";
+        };
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 }
