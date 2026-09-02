@@ -70,6 +70,10 @@ Contrapposto is a scheduling platform for **Life Drawing events** (artists gathe
 - Lapsed organizer: can view past events, cannot post new ones
 - Lapsed model: hidden from search, but still shown on assigned events
 
+## Branching Policy
+
+Each new phase must be developed on a dedicated feature branch named `phase-N` (e.g. `phase-2`). Create the branch before writing any phase code. Merge back into `master` only when all tests pass and the phase is complete. Never commit phase work directly to `master`.
+
 ## Testing Policy
 
 Always write unit tests alongside new code. All tests must pass before any code is pushed — run `./mvnw test` and confirm `BUILD SUCCESS` before pushing. Every new service class gets a `*Test` in `src/test/.../service/`. Every new controller gets a `*Test` in `src/test/.../controller/` using `@WebMvcTest` + `@Import(SecurityConfig.class)`.
