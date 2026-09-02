@@ -50,6 +50,20 @@ class AuthControllerTest {
     }
 
     @Test
+    void getRegisterForm_withAdminRole_redirectsToRegister() throws Exception {
+        mockMvc.perform(get("/register/form").param("role", "ADMIN"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/register"));
+    }
+
+    @Test
+    void getRegisterOAuth2_withAdminRole_redirectsToRegister() throws Exception {
+        mockMvc.perform(get("/register/oauth2/google").param("role", "ADMIN"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/register"));
+    }
+
+    @Test
     void getRegisterForm_withModelRole_returnsFragment() throws Exception {
         mockMvc.perform(get("/register/form").param("role", "MODEL"))
                 .andExpect(status().isOk())

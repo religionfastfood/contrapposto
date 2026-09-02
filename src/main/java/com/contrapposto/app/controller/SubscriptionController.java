@@ -5,7 +5,7 @@ import com.contrapposto.app.model.Role;
 import com.contrapposto.app.model.User;
 import com.contrapposto.app.security.UserPrincipal;
 import com.contrapposto.app.service.SubscriptionService;
-import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,9 +20,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
+    private final String baseUrl;
 
-    public SubscriptionController(SubscriptionService subscriptionService) {
+    public SubscriptionController(SubscriptionService subscriptionService,
+                                  @Value("${app.base-url}") String baseUrl) {
         this.subscriptionService = subscriptionService;
+        this.baseUrl = baseUrl;
     }
 
     @GetMapping("/plan")
@@ -51,7 +54,6 @@ public class SubscriptionController {
     @PostMapping("/checkout")
     public String checkout(@RequestParam BillingPeriod billingPeriod,
                            @AuthenticationPrincipal UserPrincipal principal,
-                           HttpServletRequest request,
                            RedirectAttributes redirectAttributes) {
         if (!subscriptionService.isConfigured()) {
             redirectAttributes.addFlashAttribute("error",
@@ -60,7 +62,6 @@ public class SubscriptionController {
         }
 
         User user = principal.getUser();
-        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
         String successUrl = baseUrl + "/subscription/success?session_id={CHECKOUT_SESSION_ID}";
         String cancelUrl = baseUrl + "/subscription/cancel";
 

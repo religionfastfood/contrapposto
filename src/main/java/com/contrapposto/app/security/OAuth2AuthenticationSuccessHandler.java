@@ -59,7 +59,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         HttpSession session = request.getSession(false);
         Role pendingRole = (session != null) ? (Role) session.getAttribute("pendingRole") : null;
 
-        if (pendingRole == null) {
+        if (pendingRole == null || pendingRole == Role.ADMIN) {
             getRedirectStrategy().sendRedirect(request, response, "/register?oauth=pending");
             return;
         }
