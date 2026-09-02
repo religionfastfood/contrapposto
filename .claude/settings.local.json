@@ -5,7 +5,8 @@
       "Bash(mkdir -p \"C:/Users/chris/IdeaProjects/contrapposto/src/main/resources/templates/fragments\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/resources/templates/auth\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/resources/templates/organizer\" \"C:/Users/chris/IdeaProjects/contrapposto/src/main/resources/templates/model\")",
       "Bash(./mvnw spring-boot:run)",
       "Read(//c/Program Files/**)",
-      "Bash(./mvnw clean:*)"
+      "Bash(./mvnw clean:*)",
+      "Bash(./mvnw test:*)"
     ]
   }
 }
