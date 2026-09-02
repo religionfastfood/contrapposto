@@ -22,14 +22,18 @@
     <style>
         :root {
             --navy:      #111111;
-            --cream:     #f2f3f7;
+            --white:     #ffffff;
             --accent:    #111111;
             --text-dark: #111111;
         }
 
         /* --- Base --- */
         body {
-            background-color: var(--cream);
+            background-color: #ffffff;
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+            background-size: 24px 24px;
             color: var(--text-dark);
             font-family: 'DM Sans', system-ui, sans-serif;
         }
@@ -116,6 +120,10 @@
             background-color: #111111;
             color: #ffffff;
             border-color: #111111;
+        }
+
+        .btn-outline-light {
+            border-radius: 0;
         }
 
         /* --- Cards --- */
