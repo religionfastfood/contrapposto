@@ -42,8 +42,13 @@ public class AuthController {
 
     @GetMapping("/register/form")
     public String registerForm(@RequestParam Role role, Model model) {
+        if (role == Role.ADMIN) {
+            return "redirect:/register";
+        }
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setRole(role);
         model.addAttribute("role", role);
-        model.addAttribute("registerRequest", new RegisterRequest());
+        model.addAttribute("registerRequest", registerRequest);
         return "auth/register-form-fragment :: registerForm";
     }
 
@@ -75,6 +80,9 @@ public class AuthController {
 
     @GetMapping("/register/oauth2/google")
     public String registerOAuth2Google(@RequestParam Role role, HttpServletRequest request) {
+        if (role == Role.ADMIN) {
+            return "redirect:/register";
+        }
         HttpSession session = request.getSession(true);
         session.setAttribute("pendingRole", role);
         return "redirect:/oauth2/authorization/google";

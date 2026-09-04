@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -50,11 +52,27 @@ class AuthControllerTest {
     }
 
     @Test
+    void getRegisterForm_withAdminRole_redirectsToRegister() throws Exception {
+        mockMvc.perform(get("/register/form").param("role", "ADMIN"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/register"));
+    }
+
+    @Test
+    void getRegisterOAuth2_withAdminRole_redirectsToRegister() throws Exception {
+        mockMvc.perform(get("/register/oauth2/google").param("role", "ADMIN"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/register"));
+    }
+
+    @Test
     void getRegisterForm_withModelRole_returnsFragment() throws Exception {
         mockMvc.perform(get("/register/form").param("role", "MODEL"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("auth/register-form-fragment :: registerForm"))
-                .andExpect(model().attribute("role", Role.MODEL));
+                .andExpect(model().attribute("role", Role.MODEL))
+                .andExpect(model().attribute("registerRequest",
+                        hasProperty("role", is(Role.MODEL))));
     }
 
     @Test
@@ -62,7 +80,9 @@ class AuthControllerTest {
         mockMvc.perform(get("/register/form").param("role", "ORGANIZER"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("auth/register-form-fragment :: registerForm"))
-                .andExpect(model().attribute("role", Role.ORGANIZER));
+                .andExpect(model().attribute("role", Role.ORGANIZER))
+                .andExpect(model().attribute("registerRequest",
+                        hasProperty("role", is(Role.ORGANIZER))));
     }
 
     @Test

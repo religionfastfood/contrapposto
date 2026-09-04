@@ -36,12 +36,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/stripe/webhook"))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/events/**", "/login", "/register/**",
-                        "/css/**", "/js/**", "/webjars/**", "/oauth2/**").permitAll()
+                        "/css/**", "/js/**", "/webjars/**", "/oauth2/**",
+                        "/stripe/webhook").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/organizer/**").hasRole("ORGANIZER")
                 .requestMatchers("/model/**").hasRole("MODEL")
+                .requestMatchers("/subscription/**").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

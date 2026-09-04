@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -39,6 +40,23 @@ public class User {
     @Column(nullable = false)
     @Builder.Default
     private boolean enabled = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private SubscriptionStatus subscriptionStatus = SubscriptionStatus.NONE;
+
+    @Column
+    private String stripeCustomerId;
+
+    @Column
+    private String stripeSubscriptionId;
+
+    @Column
+    private Instant trialEndsAt;
+
+    @Column
+    private Instant currentPeriodEndsAt;
 
     @CreationTimestamp
     @Column(updatable = false)
