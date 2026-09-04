@@ -6,6 +6,7 @@ import com.contrapposto.app.model.Role;
 import com.contrapposto.app.model.SubscriptionStatus;
 import com.contrapposto.app.model.User;
 import com.contrapposto.app.repository.UserRepository;
+import com.stripe.exception.EventDataObjectDeserializationException;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
@@ -90,27 +91,32 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
 
         switch (event.getType()) {
-            case "customer.subscription.created", "customer.subscription.updated" -> {
-                Subscription subscription = (Subscription) event.getDataObjectDeserializer()
-                        .getObject().orElseThrow();
-                handleSubscriptionChange(subscription);
-            }
-            case "customer.subscription.deleted" -> {
-                Subscription subscription = (Subscription) event.getDataObjectDeserializer()
-                        .getObject().orElseThrow();
-                handleSubscriptionDeleted(subscription);
-            }
-            case "invoice.payment_succeeded" -> {
-                Invoice invoice = (Invoice) event.getDataObjectDeserializer()
-                        .getObject().orElseThrow();
-                handlePaymentSucceeded(invoice);
-            }
-            case "invoice.payment_failed" -> {
-                Invoice invoice = (Invoice) event.getDataObjectDeserializer()
-                        .getObject().orElseThrow();
-                handlePaymentFailed(invoice);
-            }
+            case "customer.subscription.created", "customer.subscription.updated" ->
+                    handleSubscriptionChange((Subscription) deserializeEventObject(event));
+            case "customer.subscription.deleted" ->
+                    handleSubscriptionDeleted((Subscription) deserializeEventObject(event));
+            case "invoice.payment_succeeded" ->
+                    handlePaymentSucceeded((Invoice) deserializeEventObject(event));
+            case "invoice.payment_failed" ->
+                    handlePaymentFailed((Invoice) deserializeEventObject(event));
             default -> { /* ignore unhandled event types */ }
+        }
+    }
+
+    /**
+     * getObject() can come back empty when the event was serialized with a Stripe API
+     * version other than the one this SDK release expects. deserializeUnsafe() parses
+     * the raw JSON directly against the SDK's model classes and doesn't hit that check.
+     */
+    private StripeObject deserializeEventObject(Event event) {
+        EventDataObjectDeserializer deserializer = event.getDataObjectDeserializer();
+        if (deserializer.getObject().isPresent()) {
+            return deserializer.getObject().get();
+        }
+        try {
+            return deserializer.deserializeUnsafe();
+        } catch (EventDataObjectDeserializationException e) {
+            throw new IllegalStateException("Could not deserialize Stripe event payload", e);
         }
     }
 
@@ -146,11 +152,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private void handleSubscriptionChange(Subscription subscription) {
         findUserByCustomerId(subscription.getCustomer()).ifPresent(user -> {
             user.setStripeSubscriptionId(subscription.getId());
-            user.setCurrentPeriodEndsAt(Instant.ofEpochSecond(subscription.getCurrentPeriodEnd()));
+            toInstant(subscription.getCurrentPeriodEnd()).ifPresent(user::setCurrentPeriodEndsAt);
 
             SubscriptionStatus status = switch (subscription.getStatus()) {
                 case "trialing" -> {
-                    user.setTrialEndsAt(Instant.ofEpochSecond(subscription.getTrialEnd()));
+                    toInstant(subscription.getTrialEnd()).ifPresent(user::setTrialEndsAt);
                     yield SubscriptionStatus.TRIAL;
                 }
                 case "active" -> SubscriptionStatus.ACTIVE;
@@ -190,5 +196,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     private Optional<User> findUserByCustomerId(String customerId) {
         return userRepository.findByStripeCustomerId(customerId);
+    }
+
+    private Optional<Instant> toInstant(Long epochSeconds) {
+        return Optional.ofNullable(epochSeconds).map(Instant::ofEpochSecond);
     }
 }

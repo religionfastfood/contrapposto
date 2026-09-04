@@ -45,8 +45,10 @@ public class AuthController {
         if (role == Role.ADMIN) {
             return "redirect:/register";
         }
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setRole(role);
         model.addAttribute("role", role);
-        model.addAttribute("registerRequest", new RegisterRequest());
+        model.addAttribute("registerRequest", registerRequest);
         return "auth/register-form-fragment :: registerForm";
     }
 
