@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My Profile')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5" style="max-width: 760px;">
+
+    <h2 class="fw-bold mb-1">My Profile</h2>
+    <p class="text-muted mb-2">This is what organizers and event visitors see about you.</p>
+    <hr class="section-divider mb-4"/>
+
+    <div th:if="${success}" class="alert alert-success mb-4" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger mb-4" th:text="${error}"></div>
+
+    <div class="card p-4 mb-4">
+        <h5 class="fw-bold mb-3">Photos</h5>
+        <p class="text-muted small mb-3">Up to 3 photos.</p>
+
+        <div class="row g-3 mb-3" th:if="${!profile.photoUrls.isEmpty()}">
+            <div class="col-4" th:each="photoUrl : ${profile.photoUrls}">
+                <img th:src="${photoUrl}" class="img-fluid mb-2" style="border: 1px solid #111111; aspect-ratio: 1; object-fit: cover; width: 100%;"/>
+                <form th:action="@{/model/profile/photos/delete}" method="post">
+                    <input type="hidden" name="photoUrl" th:value="${photoUrl}"/>
+                    <button type="submit" class="btn btn-outline-secondary btn-sm w-100">Remove</button>
+                </form>
+            </div>
+        </div>
+
+        <form th:if="${profile.photoUrls.size() < 3}"
+              th:action="@{/model/profile/photos}" method="post" enctype="multipart/form-data"
+              class="d-flex gap-2 align-items-center">
+            <input type="file" name="file" accept="image/*" class="form-control" required/>
+            <button type="submit" class="btn btn-accent text-nowrap">Upload</button>
+        </form>
+    </div>
+
+    <div class="card p-4">
+        <h5 class="fw-bold mb-3">Details</h5>
+        <form th:action="@{/model/profile}" th:object="${profileRequest}" method="post">
+
+            <div class="mb-3">
+                <label for="bio" class="form-label fw-semibold">Bio</label>
+                <textarea id="bio" th:field="*{bio}" rows="4"
+                          th:classappend="${#fields.hasErrors('bio')} ? 'is-invalid'"
+                          class="form-control" placeholder="Tell organizers about yourself"></textarea>
+                <div class="invalid-feedback" th:errors="*{bio}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="contactInfo" class="form-label fw-semibold">Contact info</label>
+                <input type="text" id="contactInfo" th:field="*{contactInfo}"
+                       th:classappend="${#fields.hasErrors('contactInfo')} ? 'is-invalid'"
+                       class="form-control" placeholder="Phone or email"/>
+                <div class="invalid-feedback" th:errors="*{contactInfo}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="socialMediaLinks" class="form-label fw-semibold">Social media links</label>
+                <input type="text" id="socialMediaLinks" th:field="*{socialMediaLinks}"
+                       th:classappend="${#fields.hasErrors('socialMediaLinks')} ? 'is-invalid'"
+                       class="form-control" placeholder="Instagram, website, etc."/>
+                <div class="invalid-feedback" th:errors="*{socialMediaLinks}"></div>
+            </div>
+
+            <div class="mb-4">
+                <label for="city" class="form-label fw-semibold">City</label>
+                <input type="text" id="city" th:field="*{city}"
+                       th:classappend="${#fields.hasErrors('city')} ? 'is-invalid'"
+                       class="form-control" placeholder="City"/>
+                <div class="invalid-feedback" th:errors="*{city}"></div>
+            </div>
+
+            <button type="submit" class="btn btn-accent">Save Profile</button>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

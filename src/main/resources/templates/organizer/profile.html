@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My Profile')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5" style="max-width: 760px;">
+
+    <h2 class="fw-bold mb-1">My Profile</h2>
+    <p class="text-muted mb-2">This is what models see about your organization.</p>
+    <hr class="section-divider mb-4"/>
+
+    <div th:if="${success}" class="alert alert-success mb-4" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger mb-4" th:text="${error}"></div>
+
+    <div class="card p-4">
+        <form th:action="@{/organizer/profile}" th:object="${profileRequest}" method="post">
+
+            <div class="mb-3">
+                <label for="displayName" class="form-label fw-semibold">Name</label>
+                <input type="text" id="displayName" th:field="*{displayName}"
+                       th:classappend="${#fields.hasErrors('displayName')} ? 'is-invalid'"
+                       class="form-control" placeholder="Your name or organization name"/>
+                <div class="invalid-feedback" th:errors="*{displayName}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="orgInfo" class="form-label fw-semibold">Organization info</label>
+                <textarea id="orgInfo" th:field="*{orgInfo}" rows="4"
+                          th:classappend="${#fields.hasErrors('orgInfo')} ? 'is-invalid'"
+                          class="form-control" placeholder="Tell models about your organization"></textarea>
+                <div class="invalid-feedback" th:errors="*{orgInfo}"></div>
+            </div>
+
+            <div class="mb-4">
+                <label for="city" class="form-label fw-semibold">City</label>
+                <input type="text" id="city" th:field="*{city}"
+                       th:classappend="${#fields.hasErrors('city')} ? 'is-invalid'"
+                       class="form-control" placeholder="City"/>
+                <div class="invalid-feedback" th:errors="*{city}"></div>
+            </div>
+
+            <button type="submit" class="btn btn-accent">Save Profile</button>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

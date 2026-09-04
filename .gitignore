@@ -38,3 +38,6 @@ build/
 ### Local secrets ###
 application-local.properties
 src/main/resources/application-local.properties
+
+### Local photo uploads (dev fallback when AWS S3 isn't configured) ###
+/local-uploads/
