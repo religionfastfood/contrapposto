@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${event.title})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5" style="max-width: 760px;">
+
+    <a th:href="@{/}" class="text-muted small d-inline-block mb-3">&larr; Back to home</a>
+
+    <span class="badge rounded-pill d-block mb-2" style="background-color: var(--accent); color: var(--white); width: fit-content;"
+          th:text="${event.eventType.name}">Type</span>
+    <h2 class="fw-bold mb-1" th:text="${event.title}">Title</h2>
+    <p class="text-muted mb-2" th:text="${#temporals.format(event.startTime, 'EEEE, MMM d, yyyy &middot; h:mm a')}">When</p>
+    <hr class="section-divider mb-4"/>
+
+    <div class="card p-4">
+        <div class="mb-3" th:if="${not #strings.isEmpty(event.description)}">
+            <h6 class="fw-bold">About this session</h6>
+            <p th:text="${event.description}">Description</p>
+        </div>
+
+        <div class="mb-3">
+            <h6 class="fw-bold">Location</h6>
+            <p th:text="${event.location} + ', ' + ${event.city}">Location</p>
+        </div>
+
+        <div class="mb-3">
+            <h6 class="fw-bold">Price</h6>
+            <p th:text="${event.priceAmount != null} ? ('$' + ${#numbers.formatDecimal(event.priceAmount, 1, 2)} + ' ' + ${event.priceCurrency}) : 'Free'">Price</p>
+        </div>
+
+        <div class="mb-3" th:if="${organizerProfile != null and not #strings.isEmpty(organizerProfile.displayName)}">
+            <h6 class="fw-bold">Organizer</h6>
+            <p th:text="${organizerProfile.displayName}">Organizer</p>
+        </div>
+
+        <div th:if="${not #strings.isEmpty(event.externalLink)}">
+            <h6 class="fw-bold">Learn more</h6>
+            <a th:href="${event.externalLink}" th:text="${event.externalLink}" target="_blank" rel="noopener noreferrer">Link</a>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
