@@ -43,7 +43,8 @@ public class ModelProfileServiceImpl implements ModelProfileService {
         if (profile.getPhotoUrls().size() >= MAX_PHOTOS) {
             throw new IllegalArgumentException("You can only have up to " + MAX_PHOTOS + " photos");
         }
-        String url = photoStorageService.upload(file, "model-" + user.getId());
+        String extension = PhotoValidator.validate(file);
+        String url = photoStorageService.upload(file, "model-" + user.getId(), extension);
         profile.getPhotoUrls().add(url);
         return modelProfileRepository.save(profile);
     }

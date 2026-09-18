@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -20,6 +21,12 @@ import java.util.UUID;
  * policy granting s3:GetObject) since profile photos are rendered directly by URL.
  */
 public class S3PhotoStorageService implements PhotoStorageService {
+
+    private static final Map<String, String> CONTENT_TYPES = Map.of(
+            ".jpg", "image/jpeg",
+            ".png", "image/png",
+            ".gif", "image/gif"
+    );
 
     private final S3Client s3Client;
     private final String bucketName;
@@ -36,14 +43,15 @@ public class S3PhotoStorageService implements PhotoStorageService {
     }
 
     @Override
-    public String upload(MultipartFile file, String keyPrefix) {
-        String key = keyPrefix + "/" + UUID.randomUUID() + extensionOf(file.getOriginalFilename());
+    public String upload(MultipartFile file, String keyPrefix, String extension) {
+        String key = keyPrefix + "/" + UUID.randomUUID() + extension;
+        String contentType = CONTENT_TYPES.getOrDefault(extension, "application/octet-stream");
         try {
             s3Client.putObject(
                     PutObjectRequest.builder()
                             .bucket(bucketName)
                             .key(key)
-                            .contentType(file.getContentType())
+                            .contentType(contentType)
                             .build(),
                     RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
         } catch (IOException e) {
@@ -63,13 +71,5 @@ public class S3PhotoStorageService implements PhotoStorageService {
         }
         String key = url.substring(prefix.length());
         s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(key).build());
-    }
-
-    private String extensionOf(String originalFilename) {
-        if (originalFilename == null) {
-            return "";
-        }
-        int dot = originalFilename.lastIndexOf('.');
-        return dot >= 0 ? originalFilename.substring(dot) : "";
     }
 }

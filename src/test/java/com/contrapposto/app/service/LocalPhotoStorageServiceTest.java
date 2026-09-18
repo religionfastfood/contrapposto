@@ -27,7 +27,7 @@ class LocalPhotoStorageServiceTest {
     void upload_savesFileAndReturnsUploadsUrl() throws IOException {
         MockMultipartFile file = new MockMultipartFile("file", "headshot.jpg", "image/jpeg", "fake-image-bytes".getBytes());
 
-        String url = service.upload(file, "model-1");
+        String url = service.upload(file, "model-1", ".jpg");
 
         assertThat(url).startsWith("/uploads/model-1-").endsWith(".jpg");
         Path savedFile = tempDir.resolve(url.substring("/uploads/".length()));
@@ -36,10 +36,10 @@ class LocalPhotoStorageServiceTest {
     }
 
     @Test
-    void upload_withNoExtension_stillSavesFile() throws IOException {
+    void upload_withGivenEmptyExtension_stillSavesFile() throws IOException {
         MockMultipartFile file = new MockMultipartFile("file", "headshot", "image/jpeg", "bytes".getBytes());
 
-        String url = service.upload(file, "model-1");
+        String url = service.upload(file, "model-1", "");
 
         assertThat(url).doesNotContain(".");
     }
@@ -47,7 +47,7 @@ class LocalPhotoStorageServiceTest {
     @Test
     void delete_removesPreviouslyUploadedFile() throws IOException {
         MockMultipartFile file = new MockMultipartFile("file", "headshot.jpg", "image/jpeg", "bytes".getBytes());
-        String url = service.upload(file, "model-1");
+        String url = service.upload(file, "model-1", ".jpg");
         Path savedFile = tempDir.resolve(url.substring("/uploads/".length()));
         assertThat(Files.exists(savedFile)).isTrue();
 

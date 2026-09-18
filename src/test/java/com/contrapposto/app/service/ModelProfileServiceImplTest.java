@@ -11,6 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockMultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +37,18 @@ class ModelProfileServiceImplTest {
 
     private User userWithId(long id) {
         return User.builder().id(id).email("model@example.com").role(Role.MODEL).build();
+    }
+
+    // a real, decodable PNG -- addPhoto now validates actual image bytes, not just the filename
+    private static byte[] realPngBytes() {
+        try {
+            BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", out);
+            return out.toByteArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     // --- getOrCreateProfile ---
@@ -86,12 +103,12 @@ class ModelProfileServiceImplTest {
     void addPhoto_underCap_uploadsAndAddsUrl() {
         User user = userWithId(3L);
         when(modelProfileRepository.findById(3L)).thenReturn(Optional.empty());
-        MockMultipartFile file = new MockMultipartFile("file", "a.jpg", "image/jpeg", "bytes".getBytes());
-        when(photoStorageService.upload(file, "model-3")).thenReturn("/uploads/a.jpg");
+        MockMultipartFile file = new MockMultipartFile("file", "a.jpg", "image/jpeg", realPngBytes());
+        when(photoStorageService.upload(file, "model-3", ".png")).thenReturn("/uploads/a.png");
 
         ModelProfile profile = service.addPhoto(user, file);
 
-        assertThat(profile.getPhotoUrls()).containsExactly("/uploads/a.jpg");
+        assertThat(profile.getPhotoUrls()).containsExactly("/uploads/a.png");
     }
 
     @Test
@@ -100,12 +117,25 @@ class ModelProfileServiceImplTest {
         ModelProfile existing = new ModelProfile(user);
         existing.getPhotoUrls().addAll(java.util.List.of("/uploads/1.jpg", "/uploads/2.jpg", "/uploads/3.jpg"));
         when(modelProfileRepository.findById(4L)).thenReturn(Optional.of(existing));
-        MockMultipartFile file = new MockMultipartFile("file", "d.jpg", "image/jpeg", "bytes".getBytes());
+        MockMultipartFile file = new MockMultipartFile("file", "d.jpg", "image/jpeg", realPngBytes());
 
         assertThatThrownBy(() -> service.addPhoto(user, file))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("3");
-        verify(photoStorageService, never()).upload(any(), any());
+        verify(photoStorageService, never()).upload(any(), any(), any());
+        verify(modelProfileRepository, never()).save(any());
+    }
+
+    @Test
+    void addPhoto_notARealImage_throwsIllegalArgumentAndDoesNotUpload() {
+        User user = userWithId(7L);
+        when(modelProfileRepository.findById(7L)).thenReturn(Optional.empty());
+        MockMultipartFile file = new MockMultipartFile("file", "pwn.html", "text/html",
+                "<script>alert(document.cookie)</script>".getBytes());
+
+        assertThatThrownBy(() -> service.addPhoto(user, file))
+                .isInstanceOf(IllegalArgumentException.class);
+        verify(photoStorageService, never()).upload(any(), any(), any());
         verify(modelProfileRepository, never()).save(any());
     }
 
@@ -145,7 +175,7 @@ class ModelProfileServiceImplTest {
         User user = User.builder().id(100L).email("model@example.com").role(Role.MODEL).build();
         ModelProfileRepository repo = Mockito.mock(ModelProfileRepository.class);
         PhotoStorageService storage = Mockito.mock(PhotoStorageService.class);
-        when(storage.upload(any(), any())).thenReturn("/uploads/x.jpg");
+        when(storage.upload(any(), any(), any())).thenReturn("/uploads/x.png");
         ModelProfileServiceImpl svc = new ModelProfileServiceImpl(repo, storage);
 
         ModelProfile profile = new ModelProfile(user);
@@ -154,7 +184,7 @@ class ModelProfileServiceImplTest {
 
         for (int i = 0; i < uploadAttempts; i++) {
             try {
-                svc.addPhoto(user, new MockMultipartFile("file", "p.jpg", "image/jpeg", "b".getBytes()));
+                svc.addPhoto(user, new MockMultipartFile("file", "p.png", "image/png", realPngBytes()));
             } catch (IllegalArgumentException expected) {
                 // cap reached — expected once photoUrls.size() == 3
             }

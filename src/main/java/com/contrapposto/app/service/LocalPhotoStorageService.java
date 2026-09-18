@@ -30,11 +30,10 @@ public class LocalPhotoStorageService implements PhotoStorageService {
     }
 
     @Override
-    public String upload(MultipartFile file, String keyPrefix) {
+    public String upload(MultipartFile file, String keyPrefix, String extension) {
         try {
             Files.createDirectories(uploadDir);
 
-            String extension = extensionOf(file.getOriginalFilename());
             String filename = keyPrefix + "-" + UUID.randomUUID() + extension;
             file.transferTo(uploadDir.resolve(filename));
 
@@ -55,13 +54,5 @@ public class LocalPhotoStorageService implements PhotoStorageService {
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to delete photo", e);
         }
-    }
-
-    private String extensionOf(String originalFilename) {
-        if (originalFilename == null) {
-            return "";
-        }
-        int dot = originalFilename.lastIndexOf('.');
-        return dot >= 0 ? originalFilename.substring(dot) : "";
     }
 }
