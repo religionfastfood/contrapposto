@@ -6,6 +6,9 @@ import lombok.Data;
 @Data
 public class ModelProfileRequest {
 
+    @Size(max = 150, message = "Name must be at most 150 characters")
+    private String displayName;
+
     @Size(max = 2000, message = "Bio must be at most 2000 characters")
     private String bio;
 

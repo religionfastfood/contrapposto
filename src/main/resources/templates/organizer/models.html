@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Browse Models')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5">
+
+    <h2 class="fw-bold mb-1">Browse Models</h2>
+    <p class="text-muted mb-2">Find models to invite to your sessions.</p>
+    <hr class="section-divider mb-4"/>
+
+    <form method="get" th:action="@{/organizer/models}" class="d-flex gap-2 mb-4" style="max-width: 420px;">
+        <input type="text" name="city" th:value="${city}" class="form-control" placeholder="Filter by city"/>
+        <button type="submit" class="btn btn-accent text-nowrap">Search</button>
+        <a th:if="${not #strings.isEmpty(city)}" th:href="@{/organizer/models}" class="btn btn-outline-secondary text-nowrap">Clear</a>
+    </form>
+
+    <p th:if="${profiles.isEmpty()}" class="text-muted">No models found.</p>
+
+    <div class="row g-4">
+        <div class="col-md-4" th:each="profile : ${profiles}">
+            <div class="card h-100 p-3">
+                <img th:if="${!profile.photoUrls.isEmpty()}" th:src="${profile.photoUrls[0]}"
+                     class="img-fluid mb-2" style="border: 1px solid #111111; aspect-ratio: 1; object-fit: cover; width: 100%;"/>
+                <h5 class="fw-bold mb-1" th:text="${#strings.isEmpty(profile.displayName)} ? 'Unnamed model' : ${profile.displayName}">Name</h5>
+                <p class="text-muted small mb-2" th:if="${not #strings.isEmpty(profile.city)}" th:text="${profile.city}">City</p>
+                <p class="mb-3" th:if="${not #strings.isEmpty(profile.bio)}" th:text="${#strings.abbreviate(profile.bio, 140)}">Bio excerpt</p>
+                <a th:href="@{/organizer/models/{id}(id=${profile.id})}" class="btn btn-outline-secondary btn-sm mt-auto"
+                   style="width: fit-content;">View Profile</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

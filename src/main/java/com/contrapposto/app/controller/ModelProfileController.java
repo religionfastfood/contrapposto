@@ -70,6 +70,7 @@ public class ModelProfileController {
 
     private ModelProfileRequest requestFrom(ModelProfile profile) {
         ModelProfileRequest request = new ModelProfileRequest();
+        request.setDisplayName(profile.getDisplayName());
         request.setBio(profile.getBio());
         request.setContactInfo(profile.getContactInfo());
         request.setSocialMediaLinks(profile.getSocialMediaLinks());
