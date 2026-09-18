@@ -19,9 +19,8 @@ import java.util.List;
  * Seeds a handful of dummy model profiles (with boilerplate bios and stock photo URLs, spread
  * across a few cities, one deliberately LAPSED) so the organizer model-search/browse feature has
  * something to show during manual testing. Reuses the same dev-only gate as {@link DevUserSeeder}.
- * Photo URLs point at picsum.photos (a public stock-photo placeholder service) rather than real
- * uploads -- they render fine offline-tolerant browsers will just show broken images without
- * network access, which is fine for local dev.
+ * Photo URLs point at randomuser.me's portrait placeholder service rather than real uploads --
+ * they need network access to render, which is fine for local dev.
  */
 @Slf4j
 @Component
@@ -34,27 +33,27 @@ public class DevModelProfileSeeder implements CommandLineRunner {
             new Spec("model.ava@contrapposto.local", "Ava Chen",
                     "Experienced figure model specializing in gesture and long-pose work. Comfortable with all class levels.",
                     "Portland", "ava.chen@example.com", "instagram.com/ava.models",
-                    List.of(stockPhoto("ava-1"), stockPhoto("ava-2")), SubscriptionStatus.ACTIVE),
+                    List.of(stockPortrait("women", 33), stockPortrait("women", 68)), SubscriptionStatus.ACTIVE),
             new Spec("model.marcus@contrapposto.local", "Marcus Bell",
                     "Dance and movement background; strong in dynamic gesture sessions and short poses.",
                     "Austin", "marcus.bell@example.com", null,
-                    List.of(stockPhoto("marcus-1")), SubscriptionStatus.ACTIVE),
+                    List.of(stockPortrait("men", 45)), SubscriptionStatus.ACTIVE),
             new Spec("model.priya@contrapposto.local", "Priya Nair",
                     "Classically trained figure model. Available for portrait and long-pose sessions, studio or outdoor.",
                     "Chicago", "priya.nair@example.com", "priyanair.art",
-                    List.of(stockPhoto("priya-1"), stockPhoto("priya-2"), stockPhoto("priya-3")), SubscriptionStatus.ACTIVE),
+                    List.of(stockPortrait("women", 12), stockPortrait("women", 56), stockPortrait("women", 71)), SubscriptionStatus.ACTIVE),
             new Spec("model.diego@contrapposto.local", "Diego Alvarez",
                     "New to modeling but quick to learn poses; enthusiastic and reliable.",
                     "Seattle", "diego.alvarez@example.com", null,
-                    List.of(stockPhoto("diego-1")), SubscriptionStatus.ACTIVE),
+                    List.of(stockPortrait("men", 22)), SubscriptionStatus.ACTIVE),
             new Spec("model.sasha@contrapposto.local", "Sasha Morgan",
                     "Ten years of life-drawing experience. Open studio regular, also books private sessions.",
                     "Portland", "sasha.morgan@example.com", "instagram.com/sasha.draws",
-                    List.of(stockPhoto("sasha-1"), stockPhoto("sasha-2")), SubscriptionStatus.ACTIVE),
+                    List.of(stockPortrait("women", 5), stockPortrait("men", 8)), SubscriptionStatus.ACTIVE),
             new Spec("model.lapsed@contrapposto.local", "Robin Lapsed",
                     "Demo account for a lapsed subscription -- should stay hidden from organizer search.",
                     "Portland", "robin.lapsed@example.com", null,
-                    List.of(stockPhoto("lapsed-1")), SubscriptionStatus.LAPSED)
+                    List.of(stockPortrait("men", 71)), SubscriptionStatus.LAPSED)
     );
 
     private final UserRepository userRepository;
@@ -97,8 +96,8 @@ public class DevModelProfileSeeder implements CommandLineRunner {
         }
     }
 
-    private static String stockPhoto(String seed) {
-        return "https://picsum.photos/seed/" + seed + "/600/600";
+    private static String stockPortrait(String gender, int index) {
+        return "https://randomuser.me/api/portraits/" + gender + "/" + index + ".jpg";
     }
 
     private record Spec(String email, String displayName, String bio, String city, String contactInfo,
