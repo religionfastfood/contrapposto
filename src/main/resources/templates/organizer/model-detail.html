@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${profile.displayName ?: 'Model Profile'})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5" style="max-width: 760px;">
+
+    <a th:href="@{/organizer/models}" class="text-muted small d-inline-block mb-3">&larr; Back to search</a>
+
+    <h2 class="fw-bold mb-1" th:text="${#strings.isEmpty(profile.displayName)} ? 'Unnamed model' : ${profile.displayName}">Name</h2>
+    <p class="text-muted mb-2" th:if="${not #strings.isEmpty(profile.city)}" th:text="${profile.city}">City</p>
+    <hr class="section-divider mb-4"/>
+
+    <div class="row g-3 mb-4" th:if="${!profile.photoUrls.isEmpty()}">
+        <div class="col-4" th:each="photoUrl : ${profile.photoUrls}">
+            <img th:src="${photoUrl}" class="img-fluid" style="border: 1px solid #111111; aspect-ratio: 1; object-fit: cover; width: 100%;"/>
+        </div>
+    </div>
+
+    <div class="card p-4">
+        <div class="mb-3" th:if="${not #strings.isEmpty(profile.bio)}">
+            <h6 class="fw-bold">Bio</h6>
+            <p th:text="${profile.bio}">Bio</p>
+        </div>
+        <div class="mb-3" th:if="${not #strings.isEmpty(profile.contactInfo)}">
+            <h6 class="fw-bold">Contact</h6>
+            <p th:text="${profile.contactInfo}">Contact info</p>
+        </div>
+        <div th:if="${not #strings.isEmpty(profile.socialMediaLinks)}">
+            <h6 class="fw-bold">Social</h6>
+            <p th:text="${profile.socialMediaLinks}">Social links</p>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -2,11 +2,13 @@ package com.contrapposto.app.repository;
 
 import com.contrapposto.app.model.ModelProfile;
 import com.contrapposto.app.model.Role;
+import com.contrapposto.app.model.SubscriptionStatus;
 import com.contrapposto.app.model.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +36,7 @@ class ModelProfileRepositoryTest {
                 .build());
 
         ModelProfile profile = new ModelProfile(user);
+        profile.setDisplayName("Jamie Rivera");
         profile.setBio("A bio");
         profile.setContactInfo("555-1234");
         profile.setSocialMediaLinks("instagram.com/me");
@@ -45,6 +48,7 @@ class ModelProfileRepositoryTest {
         Optional<ModelProfile> found = modelProfileRepository.findById(user.getId());
 
         assertThat(found).isPresent();
+        assertThat(found.get().getDisplayName()).isEqualTo("Jamie Rivera");
         assertThat(found.get().getBio()).isEqualTo("A bio");
         assertThat(found.get().getContactInfo()).isEqualTo("555-1234");
         assertThat(found.get().getSocialMediaLinks()).isEqualTo("instagram.com/me");
@@ -68,5 +72,39 @@ class ModelProfileRepositoryTest {
     @Test
     void findById_noProfileYet_returnsEmpty() {
         assertThat(modelProfileRepository.findById(999L)).isEmpty();
+    }
+
+    @Test
+    void findByUser_SubscriptionStatusIn_excludesLapsedAndNoneStatuses() {
+        ModelProfile active = saveProfile("active@example.com", SubscriptionStatus.ACTIVE, "Portland");
+        saveProfile("lapsed@example.com", SubscriptionStatus.LAPSED, "Portland");
+        saveProfile("none@example.com", SubscriptionStatus.NONE, "Portland");
+
+        List<ModelProfile> visible = modelProfileRepository.findByUser_SubscriptionStatusIn(SubscriptionStatus.active());
+
+        assertThat(visible).extracting(ModelProfile::getId).containsExactly(active.getId());
+    }
+
+    @Test
+    void findByUser_SubscriptionStatusInAndCityIgnoreCase_filtersByCityCaseInsensitively() {
+        ModelProfile portland = saveProfile("p@example.com", SubscriptionStatus.ACTIVE, "Portland");
+        saveProfile("a@example.com", SubscriptionStatus.ACTIVE, "Austin");
+
+        List<ModelProfile> visible = modelProfileRepository.findByUser_SubscriptionStatusInAndCityIgnoreCase(
+                SubscriptionStatus.active(), "PORTLAND");
+
+        assertThat(visible).extracting(ModelProfile::getId).containsExactly(portland.getId());
+    }
+
+    private ModelProfile saveProfile(String email, SubscriptionStatus status, String city) {
+        User user = userRepository.save(User.builder()
+                .email(email)
+                .password("hashed")
+                .role(Role.MODEL)
+                .subscriptionStatus(status)
+                .build());
+        ModelProfile profile = new ModelProfile(user);
+        profile.setCity(city);
+        return modelProfileRepository.save(profile);
     }
 }

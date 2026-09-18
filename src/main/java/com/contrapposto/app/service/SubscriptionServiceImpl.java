@@ -39,8 +39,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public boolean isSubscriptionActive(User user) {
-        SubscriptionStatus status = user.getSubscriptionStatus();
-        return status == SubscriptionStatus.TRIAL || status == SubscriptionStatus.ACTIVE;
+        return user.getSubscriptionStatus().isActive();
     }
 
     @Override

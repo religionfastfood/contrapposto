@@ -40,6 +40,14 @@
         <form th:action="@{/model/profile}" th:object="${profileRequest}" method="post">
 
             <div class="mb-3">
+                <label for="displayName" class="form-label fw-semibold">Name</label>
+                <input type="text" id="displayName" th:field="*{displayName}"
+                       th:classappend="${#fields.hasErrors('displayName')} ? 'is-invalid'"
+                       class="form-control" placeholder="The name organizers will see"/>
+                <div class="invalid-feedback" th:errors="*{displayName}"></div>
+            </div>
+
+            <div class="mb-3">
                 <label for="bio" class="form-label fw-semibold">Bio</label>
                 <textarea id="bio" th:field="*{bio}" rows="4"
                           th:classappend="${#fields.hasErrors('bio')} ? 'is-invalid'"

@@ -83,6 +83,7 @@ class ModelProfileServiceImplTest {
         User user = userWithId(2L);
         when(modelProfileRepository.findById(2L)).thenReturn(Optional.empty());
         ModelProfileRequest request = new ModelProfileRequest();
+        request.setDisplayName("Jamie Rivera");
         request.setBio("A bio");
         request.setContactInfo("555-1234");
         request.setSocialMediaLinks("instagram.com/me");
@@ -90,6 +91,7 @@ class ModelProfileServiceImplTest {
 
         ModelProfile profile = service.updateProfile(user, request);
 
+        assertThat(profile.getDisplayName()).isEqualTo("Jamie Rivera");
         assertThat(profile.getBio()).isEqualTo("A bio");
         assertThat(profile.getContactInfo()).isEqualTo("555-1234");
         assertThat(profile.getSocialMediaLinks()).isEqualTo("instagram.com/me");

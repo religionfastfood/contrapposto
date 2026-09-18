@@ -23,6 +23,9 @@ public class ModelProfile {
     @JoinColumn(name = "id")
     private User user;
 
+    @Column
+    private String displayName;
+
     @Column(length = 2000)
     private String bio;
 

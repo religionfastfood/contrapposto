@@ -30,6 +30,7 @@ public class ModelProfileServiceImpl implements ModelProfileService {
     @Override
     public ModelProfile updateProfile(User user, ModelProfileRequest request) {
         ModelProfile profile = getOrCreateProfile(user);
+        profile.setDisplayName(request.getDisplayName());
         profile.setBio(request.getBio());
         profile.setContactInfo(request.getContactInfo());
         profile.setSocialMediaLinks(request.getSocialMediaLinks());
