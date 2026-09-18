@@ -9,6 +9,7 @@ import com.contrapposto.app.security.CustomUserDetailsService;
 import com.contrapposto.app.security.FormLoginSuccessHandler;
 import com.contrapposto.app.security.OAuth2AuthenticationSuccessHandler;
 import com.contrapposto.app.service.EventService;
+import com.contrapposto.app.service.OrganizerProfileService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -17,23 +18,25 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(HomeController.class)
+@WebMvcTest(EventDetailController.class)
 @Import(SecurityConfig.class)
-class HomeControllerTest {
+class EventDetailControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
     private EventService eventService;
+
+    @MockitoBean
+    private OrganizerProfileService organizerProfileService;
 
     @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
@@ -45,35 +48,29 @@ class HomeControllerTest {
     private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
     @Test
-    void home_noCity_returnsOkWithoutQueryingEvents() throws Exception {
-        mockMvc.perform(get("/"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("index"))
-                .andExpect(model().attributeDoesNotExist("events"));
-        verify(eventService, never()).upcomingByCity(org.mockito.ArgumentMatchers.any());
-    }
-
-    @Test
-    void home_withCity_populatesEventsAttribute() throws Exception {
+    void view_existingEvent_isPubliclyAccessibleWithoutAuth() throws Exception {
         User organizer = User.builder().id(1L).email("organizer@example.com").role(Role.ORGANIZER).build();
         Event event = new Event(organizer);
-        event.setId(1L);
+        event.setId(5L);
         event.setEventType(new EventType("Gesture"));
         event.setTitle("Gesture Night");
         event.setCity("Portland");
         event.setLocation("123 Main St");
         event.setStartTime(LocalDateTime.now().plusDays(1));
-        when(eventService.upcomingByCity("Portland")).thenReturn(List.of(event));
+        when(eventService.findById(5L)).thenReturn(Optional.of(event));
+        when(organizerProfileService.findByUser(any())).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/").param("city", "Portland"))
+        mockMvc.perform(get("/events/5"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("events"));
+                .andExpect(view().name("events/detail"))
+                .andExpect(model().attributeExists("event"));
     }
 
     @Test
-    void home_blankCity_treatedAsNoFilter() throws Exception {
-        mockMvc.perform(get("/").param("city", "   "))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeDoesNotExist("events"));
+    void view_nonExistentEvent_returnsNotFound() throws Exception {
+        when(eventService.findById(999L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/events/999"))
+                .andExpect(status().isNotFound());
     }
 }

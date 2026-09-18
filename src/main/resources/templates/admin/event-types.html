@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Event Types')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5" style="max-width: 640px;">
+
+    <h2 class="fw-bold mb-1">Event Types</h2>
+    <p class="text-muted mb-4">Manage the list of session types organizers can choose from when posting an event.</p>
+    <hr class="section-divider mb-4"/>
+
+    <div th:if="${success}" class="alert alert-success mb-4" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger mb-4" th:text="${error}"></div>
+
+    <div class="card p-4 mb-4">
+        <ul class="list-group list-group-flush" th:if="${!eventTypes.isEmpty()}">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0"
+                th:each="type : ${eventTypes}">
+                <span th:text="${type.name}">Type</span>
+                <form th:action="@{/admin/event-types/{id}/delete(id=${type.id})}" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-secondary btn-sm">Delete</button>
+                </form>
+            </li>
+        </ul>
+        <p th:if="${eventTypes.isEmpty()}" class="text-muted mb-0">No event types yet.</p>
+    </div>
+
+    <div class="card p-4">
+        <h6 class="fw-bold mb-3">Add a new type</h6>
+        <form th:action="@{/admin/event-types}" th:object="${eventTypeRequest}" method="post">
+            <div class="d-flex gap-2">
+                <input type="text" th:field="*{name}"
+                       th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"
+                       class="form-control" placeholder="e.g. Croquis"/>
+                <button type="submit" class="btn btn-accent text-nowrap">Add</button>
+            </div>
+            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

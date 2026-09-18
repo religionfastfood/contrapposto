@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -65,5 +66,23 @@ class OrganizerProfileServiceImplTest {
         assertThat(profile.getOrgInfo()).isEqualTo("We run weekly sessions");
         assertThat(profile.getCity()).isEqualTo("Austin");
         verify(organizerProfileRepository).save(profile);
+    }
+
+    @Test
+    void findByUser_existingProfile_returnsItWithoutCreating() {
+        User user = userWithId(3L);
+        OrganizerProfile existing = new OrganizerProfile(user);
+        when(organizerProfileRepository.findById(3L)).thenReturn(Optional.of(existing));
+
+        assertThat(service.findByUser(user)).contains(existing);
+    }
+
+    @Test
+    void findByUser_noProfile_returnsEmptyWithoutCreating() {
+        User user = userWithId(4L);
+        when(organizerProfileRepository.findById(4L)).thenReturn(Optional.empty());
+
+        assertThat(service.findByUser(user)).isEmpty();
+        verify(organizerProfileRepository, never()).save(any());
     }
 }

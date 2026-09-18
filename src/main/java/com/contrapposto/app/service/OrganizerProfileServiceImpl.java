@@ -6,6 +6,8 @@ import com.contrapposto.app.model.User;
 import com.contrapposto.app.repository.OrganizerProfileRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class OrganizerProfileServiceImpl implements OrganizerProfileService {
 
@@ -28,5 +30,10 @@ public class OrganizerProfileServiceImpl implements OrganizerProfileService {
         profile.setOrgInfo(request.getOrgInfo());
         profile.setCity(request.getCity());
         return organizerProfileRepository.save(profile);
+    }
+
+    @Override
+    public Optional<OrganizerProfile> findByUser(User user) {
+        return organizerProfileRepository.findById(user.getId());
     }
 }
