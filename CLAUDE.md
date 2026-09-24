@@ -48,6 +48,7 @@ Server-side-rendered app. Thymeleaf renders full pages; HTMX handles partial upd
 - `model/` — JPA entities and enums (`User`, `Role`, `AuthProvider`)
 - `repository/` — Spring Data JPA repositories
 - `dto/` — Form-binding objects (`RegisterRequest`)
+- `event/` — Domain events published via `ApplicationEventPublisher` (e.g. `ApplicationSubmittedEvent`); consumed by `@Async @TransactionalEventListener(AFTER_COMMIT)` listeners in `service/` so side effects like notifications never fire for a transaction that rolls back
 - `service/` — Business logic interfaces + implementations
 - `security/` — `UserPrincipal`, `CustomUserDetailsService`, success handlers
 - `config/` — `SecurityConfig`

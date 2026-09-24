@@ -8,6 +8,8 @@ import com.contrapposto.app.model.User;
 import com.contrapposto.app.security.CustomUserDetailsService;
 import com.contrapposto.app.security.FormLoginSuccessHandler;
 import com.contrapposto.app.security.OAuth2AuthenticationSuccessHandler;
+import com.contrapposto.app.security.UserPrincipal;
+import com.contrapposto.app.service.EventApplicationService;
 import com.contrapposto.app.service.EventService;
 import com.contrapposto.app.service.OrganizerProfileService;
 import org.junit.jupiter.api.Test;
@@ -22,6 +24,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -37,6 +40,9 @@ class EventDetailControllerTest {
 
     @MockitoBean
     private OrganizerProfileService organizerProfileService;
+
+    @MockitoBean
+    private EventApplicationService eventApplicationService;
 
     @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
@@ -72,5 +78,28 @@ class EventDetailControllerTest {
 
         mockMvc.perform(get("/events/999"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void view_asModel_addsExistingApplicationAttribute() throws Exception {
+        User organizer = User.builder().id(1L).email("organizer@example.com").role(Role.ORGANIZER).build();
+        Event event = new Event(organizer);
+        event.setId(5L);
+        event.setEventType(new EventType("Gesture"));
+        event.setTitle("Gesture Night");
+        event.setCity("Portland");
+        event.setLocation("123 Main St");
+        event.setStartTime(LocalDateTime.now().plusDays(1));
+        when(eventService.findById(5L)).thenReturn(Optional.of(event));
+        when(organizerProfileService.findByUser(any())).thenReturn(Optional.empty());
+
+        User model = User.builder().id(2L).email("model@example.com").role(Role.MODEL).enabled(true).build();
+        com.contrapposto.app.model.EventApplication application = new com.contrapposto.app.model.EventApplication(
+                event, model, com.contrapposto.app.model.ApplicationInitiator.MODEL, null);
+        when(eventApplicationService.findActiveForEventAndModel(any(), any())).thenReturn(Optional.of(application));
+
+        mockMvc.perform(get("/events/5").with(user(new UserPrincipal(model))))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("existingApplication"));
     }
 }

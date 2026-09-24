@@ -8,6 +8,7 @@ import com.contrapposto.app.security.CustomUserDetailsService;
 import com.contrapposto.app.security.FormLoginSuccessHandler;
 import com.contrapposto.app.security.OAuth2AuthenticationSuccessHandler;
 import com.contrapposto.app.security.UserPrincipal;
+import com.contrapposto.app.service.EventService;
 import com.contrapposto.app.service.ModelSearchService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ class ModelSearchControllerTest {
 
     @MockitoBean
     private ModelSearchService modelSearchService;
+
+    @MockitoBean
+    private EventService eventService;
 
     @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
@@ -85,7 +89,8 @@ class ModelSearchControllerTest {
         mockMvc.perform(get("/organizer/models/7").with(user(organizerPrincipal())))
                 .andExpect(status().isOk())
                 .andExpect(view().name("organizer/model-detail"))
-                .andExpect(model().attributeExists("profile"));
+                .andExpect(model().attributeExists("profile"))
+                .andExpect(model().attributeExists("organizerEvents"));
     }
 
     @Test
