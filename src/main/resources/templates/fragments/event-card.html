@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<p th:fragment="modelLine(view)" class="text-muted small mb-0 mt-1">
+    Model:
+    <span th:if="${view == null}">TBA</span>
+    <span th:if="${view != null}"
+          th:text="${not #strings.isEmpty(view.firstName)} ? ${view.firstName} : 'Assigned'">Name</span>
+</p>
+</html>

@@ -8,6 +8,7 @@ import com.contrapposto.app.model.User;
 import com.contrapposto.app.security.CustomUserDetailsService;
 import com.contrapposto.app.security.FormLoginSuccessHandler;
 import com.contrapposto.app.security.OAuth2AuthenticationSuccessHandler;
+import com.contrapposto.app.service.EventApplicationService;
 import com.contrapposto.app.service.EventService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ class HomeControllerTest {
 
     @MockitoBean
     private EventService eventService;
+
+    @MockitoBean
+    private EventApplicationService eventApplicationService;
 
     @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
@@ -67,7 +71,8 @@ class HomeControllerTest {
 
         mockMvc.perform(get("/").param("city", "Portland"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("events"));
+                .andExpect(model().attributeExists("events"))
+                .andExpect(model().attributeExists("assignedModels"));
     }
 
     @Test

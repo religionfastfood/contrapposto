@@ -34,6 +34,7 @@ public class EventDetailController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         model.addAttribute("event", event);
         model.addAttribute("organizerProfile", organizerProfileService.findByUser(event.getOrganizer()).orElse(null));
+        model.addAttribute("assignedModel", eventApplicationService.findAssignedModel(event).orElse(null));
         if (principal != null && principal.getUser().getRole() == Role.MODEL) {
             model.addAttribute("existingApplication",
                     eventApplicationService.findActiveForEventAndModel(event, principal.getUser()).orElse(null));

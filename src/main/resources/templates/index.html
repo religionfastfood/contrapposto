@@ -84,6 +84,7 @@
                            th:text="${#temporals.format(event.startTime, 'MMM d, yyyy h:mm a')} + ' &middot; ' + ${event.location} + ', ' + ${event.city}">
                             When &middot; Location
                         </p>
+                        <p th:replace="~{fragments/event-card :: modelLine(${assignedModels.get(event.id)})}"></p>
                     </div>
                 </a>
             </div>

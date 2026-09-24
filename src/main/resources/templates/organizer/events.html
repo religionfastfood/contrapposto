@@ -32,6 +32,7 @@
                 </p>
                 <p class="mb-3" th:if="${not #strings.isEmpty(event.description)}"
                    th:text="${#strings.abbreviate(event.description, 140)}">Description excerpt</p>
+                <p th:replace="~{fragments/event-card :: modelLine(${assignedModels.get(event.id)})}"></p>
                 <span th:if="${event.startTime.isBefore(now)}" class="text-muted small mb-3">Past event</span>
                 <div class="d-flex gap-2 mt-auto">
                     <a th:href="@{/events/{id}(id=${event.id})}" class="btn btn-outline-secondary btn-sm">View</a>

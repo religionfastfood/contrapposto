@@ -49,6 +49,9 @@ class EventControllerTest {
     private SubscriptionService subscriptionService;
 
     @MockitoBean
+    private com.contrapposto.app.service.EventApplicationService eventApplicationService;
+
+    @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
 
     @MockitoBean
@@ -102,7 +105,7 @@ class EventControllerTest {
         mockMvc.perform(get("/organizer/events").with(user(new UserPrincipal(organizer))))
                 .andExpect(status().isOk())
                 .andExpect(view().name("organizer/events"))
-                .andExpect(model().attributeExists("events", "now"));
+                .andExpect(model().attributeExists("events", "now", "assignedModels"));
     }
 
     // --- new form: subscription gating ---

@@ -106,4 +106,22 @@ class EventApplicationRepositoryTest {
         assertThat(found).hasSize(2);
         assertThat(found).allSatisfy(a -> assertThat(a.getEvent().getOrganizer().getId()).isEqualTo(organizer.getId()));
     }
+
+    @Test
+    void findByEventAndStatus_returnsTheAcceptedRowOnly() {
+        User organizer = saveUser("organizer6@example.com", Role.ORGANIZER);
+        User modelA = saveUser("modelC@example.com", Role.MODEL);
+        User modelB = saveUser("modelD@example.com", Role.MODEL);
+        Event event = saveEvent(organizer);
+        EventApplication pending = new EventApplication(event, modelA, ApplicationInitiator.MODEL, null);
+        eventApplicationRepository.save(pending);
+        EventApplication accepted = new EventApplication(event, modelB, ApplicationInitiator.ORGANIZER, null);
+        accepted.setStatus(ApplicationStatus.ACCEPTED);
+        eventApplicationRepository.save(accepted);
+
+        java.util.Optional<EventApplication> found = eventApplicationRepository.findByEventAndStatus(event, ApplicationStatus.ACCEPTED);
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getModel().getId()).isEqualTo(modelB.getId());
+    }
 }

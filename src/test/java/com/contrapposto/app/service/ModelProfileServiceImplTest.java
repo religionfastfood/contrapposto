@@ -170,6 +170,27 @@ class ModelProfileServiceImplTest {
         verify(photoStorageService, never()).delete(any());
     }
 
+    // --- findByUser ---
+
+    @Test
+    void findByUser_existingProfile_returnsItWithoutCreating() {
+        User user = userWithId(8L);
+        ModelProfile existing = new ModelProfile(user);
+        when(modelProfileRepository.findById(8L)).thenReturn(Optional.of(existing));
+
+        assertThat(service.findByUser(user)).contains(existing);
+        verify(modelProfileRepository, never()).save(any());
+    }
+
+    @Test
+    void findByUser_noProfile_returnsEmptyWithoutCreatingOne() {
+        User user = userWithId(9L);
+        when(modelProfileRepository.findById(9L)).thenReturn(Optional.empty());
+
+        assertThat(service.findByUser(user)).isEmpty();
+        verify(modelProfileRepository, never()).save(any());
+    }
+
     // --- PBT: the 3-photo cap always holds, however many uploads are attempted ---
 
     @Property

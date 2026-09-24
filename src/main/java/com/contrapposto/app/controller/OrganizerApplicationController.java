@@ -69,9 +69,13 @@ public class OrganizerApplicationController {
     @PostMapping("/organizer/applications/{id}/accept")
     public String accept(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal principal,
                           RedirectAttributes redirectAttributes) {
-        eventApplicationService.accept(principal.getUser(), id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
-        redirectAttributes.addFlashAttribute("success", "Application accepted.");
+        try {
+            eventApplicationService.accept(principal.getUser(), id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+            redirectAttributes.addFlashAttribute("success", "Application accepted.");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
         return "redirect:/organizer/applications";
     }
 
