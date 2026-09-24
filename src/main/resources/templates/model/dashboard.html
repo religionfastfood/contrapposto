@@ -36,10 +36,9 @@
                 <p class="text-muted mb-4">
                     Discover life drawing sessions near you, view session details, and submit applications.
                 </p>
-                <span class="badge rounded-pill mt-auto"
-                      style="background-color: var(--accent); color: var(--white); width: fit-content;">
-                    Coming Soon
-                </span>
+                <a th:href="@{/}" class="btn btn-accent mt-auto" style="width: fit-content;">
+                    Browse Events
+                </a>
             </div>
         </div>
 
@@ -50,10 +49,9 @@
                 <p class="text-muted mb-4">
                     Track the status of your event applications, confirm bookings, and manage your schedule.
                 </p>
-                <span class="badge rounded-pill mt-auto"
-                      style="background-color: var(--accent); color: var(--white); width: fit-content;">
-                    Coming Soon
-                </span>
+                <a th:href="@{/model/applications}" class="btn btn-accent mt-auto" style="width: fit-content;">
+                    View Applications
+                </a>
             </div>
         </div>
 
