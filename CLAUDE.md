@@ -98,6 +98,8 @@ Always write unit tests alongside new code. All tests must pass before any code 
 - **Phase 6 — Applications & Invitations** ✅ COMPLETE — Apply/invite flows, approve/decline, event-driven notification plumbing (log-only stub; real email deferred)
 
 **Future / Backlog:**
+- Location information for everything currently uses user-entered strings. This needs to be upgraded to prevent duplicates and junk entries.
+- Organizers need to be able to indicate what they're paying models for an event.
 - In-app event ticketing via Stripe (design Events with this in mind — store price as amount+currency, keep ticketing as separate entities).
 
 **Completed backlog items:**
