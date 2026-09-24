@@ -39,7 +39,7 @@
             <p th:if="${assignedModel == null}" class="text-muted mb-0">TBA</p>
             <div th:if="${assignedModel != null}" class="d-flex align-items-center gap-2">
                 <img th:if="${not #strings.isEmpty(assignedModel.photoUrl)}" th:src="${assignedModel.photoUrl}"
-                     style="width: 40px; height: 40px; object-fit: cover; border: 1px solid #111111;"/>
+                     style="width: 100px; height: 100px; object-fit: cover; border: 1px solid #111111;"/>
                 <span th:text="${not #strings.isEmpty(assignedModel.firstName)} ? ${assignedModel.firstName} : 'Assigned'">Name</span>
             </div>
         </div>
