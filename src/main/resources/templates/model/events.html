@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Browse Events')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5">
+
+    <h2 class="fw-bold mb-1">Browse Events</h2>
+    <p class="text-muted mb-4">Defaults to your profile city &mdash; change it below to look elsewhere.</p>
+
+    <form th:action="@{/model/events}" method="get" class="d-flex gap-2 mb-4" style="max-width: 500px;">
+        <input type="text" name="city" class="form-control" placeholder="Enter a city&hellip;" th:value="${city}"/>
+        <button type="submit" class="btn btn-accent text-nowrap">Search</button>
+    </form>
+
+    <hr class="section-divider mb-4"/>
+
+    <div th:if="${events == null}" class="text-muted">
+        Enter a city above to find life drawing events.
+    </div>
+
+    <div th:if="${events != null and events.isEmpty()}" class="text-muted">
+        No upcoming events found for <strong th:text="${city}">your city</strong> yet. Check back soon!
+    </div>
+
+    <div th:if="${events != null and !events.isEmpty()}" class="row g-4">
+        <div class="col-md-6" th:each="event : ${events}">
+            <a th:href="@{/events/{id}(id=${event.id})}" class="text-decoration-none">
+                <div class="card h-100 p-4">
+                    <span class="badge rounded-pill mb-2" style="background-color: var(--accent); color: var(--white); width: fit-content;"
+                          th:text="${event.eventType.name}">Type</span>
+                    <h5 class="fw-bold mb-1" th:text="${event.title}">Title</h5>
+                    <p class="text-muted small mb-0"
+                       th:text="${#temporals.format(event.startTime, 'MMM d, yyyy h:mm a')} + ' &middot; ' + ${event.location} + ', ' + ${event.city}">
+                        When &middot; Location
+                    </p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
