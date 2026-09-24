@@ -97,4 +97,7 @@ Always write unit tests alongside new code. All tests must pass before any code 
 - **Phase 5 — Events** ✅ COMPLETE — Event CRUD, EventType, public listings by city, event detail page
 - **Phase 6 — Applications & Invitations** ✅ COMPLETE (on branch `phase-6`, not yet merged to `master`) — Apply/invite flows, approve/decline, event-driven notification plumbing (log-only stub; real email deferred)
 
-**Future:** In-app event ticketing via Stripe (design Events with this in mind — store price as amount+currency, keep ticketing as separate entities).
+**Future / Backlog:**
+- In-app event ticketing via Stripe (design Events with this in mind — store price as amount+currency, keep ticketing as separate entities).
+- **Model-facing event browsing.** The model dashboard's "Browse Events" currently just links to the public homepage's city search, which works but isn't tailored. A dedicated view would default to the model's own profile city, while still letting them change the city filter within that view — rather than reusing the anonymous-visitor homepage search as-is.
+- **Show the assigned model on the event listing/detail pages.** Events currently display no model information at all. Should show a placeholder (e.g. "Model: TBA") until an `EventApplication` for that event reaches `ACCEPTED`, at which point show that model's name and primary photo. Ties into the existing lapsed-model rule (CLAUDE.md's "Lapsed model: hidden from search, but still shown on assigned events") — this is the feature that rule was written for, and isn't built yet.
