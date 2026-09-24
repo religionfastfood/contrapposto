@@ -34,6 +34,16 @@
             <p th:text="${event.priceAmount != null} ? ('$' + ${#numbers.formatDecimal(event.priceAmount, 1, 2)} + ' ' + ${event.priceCurrency}) : 'Free'">Price</p>
         </div>
 
+        <div class="mb-3">
+            <h6 class="fw-bold">Model</h6>
+            <p th:if="${assignedModel == null}" class="text-muted mb-0">TBA</p>
+            <div th:if="${assignedModel != null}" class="d-flex align-items-center gap-2">
+                <img th:if="${not #strings.isEmpty(assignedModel.photoUrl)}" th:src="${assignedModel.photoUrl}"
+                     style="width: 40px; height: 40px; object-fit: cover; border: 1px solid #111111;"/>
+                <span th:text="${not #strings.isEmpty(assignedModel.firstName)} ? ${assignedModel.firstName} : 'Assigned'">Name</span>
+            </div>
+        </div>
+
         <div class="mb-3" th:if="${organizerProfile != null and not #strings.isEmpty(organizerProfile.displayName)}">
             <h6 class="fw-bold">Organizer</h6>
             <p th:text="${organizerProfile.displayName}">Organizer</p>

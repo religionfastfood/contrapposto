@@ -123,6 +123,16 @@ class OrganizerApplicationControllerTest {
     }
 
     @Test
+    void accept_eventAlreadyAssigned_redirectsWithErrorFlashInsteadOfPropagating() throws Exception {
+        when(eventApplicationService.accept(any(), eq(1L)))
+                .thenThrow(new IllegalStateException("This event already has an assigned model"));
+
+        mockMvc.perform(post("/organizer/applications/1/accept").with(user(new UserPrincipal(organizerUser()))).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/organizer/applications"));
+    }
+
+    @Test
     void decline_notFoundOrNotEntitled_returnsNotFound() throws Exception {
         when(eventApplicationService.decline(any(), eq(999L))).thenReturn(Optional.empty());
 

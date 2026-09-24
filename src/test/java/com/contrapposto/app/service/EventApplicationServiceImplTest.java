@@ -34,9 +34,10 @@ class EventApplicationServiceImplTest {
     private final EventService eventService = Mockito.mock(EventService.class);
     private final UserRepository userRepository = Mockito.mock(UserRepository.class);
     private final SubscriptionService subscriptionService = Mockito.mock(SubscriptionService.class);
+    private final ModelProfileService modelProfileService = Mockito.mock(ModelProfileService.class);
     private final ApplicationEventPublisher eventPublisher = Mockito.mock(ApplicationEventPublisher.class);
     private final EventApplicationServiceImpl service = new EventApplicationServiceImpl(
-            eventApplicationRepository, eventService, userRepository, subscriptionService, eventPublisher);
+            eventApplicationRepository, eventService, userRepository, subscriptionService, modelProfileService, eventPublisher);
 
     {
         when(eventApplicationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
@@ -107,8 +108,9 @@ class EventApplicationServiceImplTest {
         EventService evtService = Mockito.mock(EventService.class);
         UserRepository userRepo = Mockito.mock(UserRepository.class);
         SubscriptionService subService = Mockito.mock(SubscriptionService.class);
+        ModelProfileService profileService = Mockito.mock(ModelProfileService.class);
         ApplicationEventPublisher publisher = Mockito.mock(ApplicationEventPublisher.class);
-        EventApplicationServiceImpl svc = new EventApplicationServiceImpl(repo, evtService, userRepo, subService, publisher);
+        EventApplicationServiceImpl svc = new EventApplicationServiceImpl(repo, evtService, userRepo, subService, profileService, publisher);
         when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         User organizer = organizer(1L);
@@ -214,6 +216,26 @@ class EventApplicationServiceImplTest {
     }
 
     @Test
+    void accept_eventAlreadyHasAcceptedModel_throwsAndDoesNotSave() {
+        User organizer = organizer(1L);
+        User model = model(2L);
+        Event event = event(organizer);
+        EventApplication application = new EventApplication(event, model, ApplicationInitiator.MODEL, null);
+        application.setId(53L);
+        when(eventApplicationRepository.findById(53L)).thenReturn(Optional.of(application));
+
+        User alreadyAcceptedModel = model(3L);
+        EventApplication alreadyAccepted = new EventApplication(event, alreadyAcceptedModel, ApplicationInitiator.MODEL, null);
+        alreadyAccepted.setId(54L);
+        alreadyAccepted.setStatus(ApplicationStatus.ACCEPTED);
+        when(eventApplicationRepository.findByEventAndStatus(event, ApplicationStatus.ACCEPTED))
+                .thenReturn(Optional.of(alreadyAccepted));
+
+        assertThatThrownBy(() -> service.accept(organizer, 53L)).isInstanceOf(IllegalStateException.class);
+        verify(eventApplicationRepository, never()).save(application);
+    }
+
+    @Test
     void decline_alreadyDecided_returnsEmpty() {
         User organizer = organizer(1L);
         User model = model(2L);
@@ -262,5 +284,74 @@ class EventApplicationServiceImplTest {
         when(eventApplicationRepository.existsByEventAndModelAndStatus(event, model, ApplicationStatus.DECLINED)).thenReturn(true);
 
         assertThat(service.hasPriorDecline(event, model)).isTrue();
+    }
+
+    // --- findAssignedModel / findAssignedModels ---
+
+    @Test
+    void findAssignedModel_noAcceptedApplication_returnsEmpty() {
+        Event event = event(organizer(1L));
+        when(eventApplicationRepository.findByEventAndStatus(event, ApplicationStatus.ACCEPTED)).thenReturn(Optional.empty());
+
+        assertThat(service.findAssignedModel(event)).isEmpty();
+    }
+
+    @Test
+    void findAssignedModel_acceptedWithProfile_returnsFirstNameAndPrimaryPhoto() {
+        User organizer = organizer(1L);
+        User model = model(2L);
+        Event event = event(organizer);
+        EventApplication accepted = new EventApplication(event, model, ApplicationInitiator.MODEL, null);
+        accepted.setStatus(ApplicationStatus.ACCEPTED);
+        when(eventApplicationRepository.findByEventAndStatus(event, ApplicationStatus.ACCEPTED)).thenReturn(Optional.of(accepted));
+
+        com.contrapposto.app.model.ModelProfile profile = new com.contrapposto.app.model.ModelProfile(model);
+        profile.setDisplayName("Ava Chen");
+        profile.getPhotoUrls().add("https://example.com/ava-1.jpg");
+        profile.getPhotoUrls().add("https://example.com/ava-2.jpg");
+        when(modelProfileService.findByUser(model)).thenReturn(Optional.of(profile));
+
+        Optional<AssignedModelView> result = service.findAssignedModel(event);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().firstName()).isEqualTo("Ava");
+        assertThat(result.get().photoUrl()).isEqualTo("https://example.com/ava-1.jpg");
+    }
+
+    @Test
+    void findAssignedModel_acceptedButNoProfile_returnsNullFirstNameAndPhoto() {
+        User organizer = organizer(1L);
+        User model = model(2L);
+        Event event = event(organizer);
+        EventApplication accepted = new EventApplication(event, model, ApplicationInitiator.MODEL, null);
+        accepted.setStatus(ApplicationStatus.ACCEPTED);
+        when(eventApplicationRepository.findByEventAndStatus(event, ApplicationStatus.ACCEPTED)).thenReturn(Optional.of(accepted));
+        when(modelProfileService.findByUser(model)).thenReturn(Optional.empty());
+
+        Optional<AssignedModelView> result = service.findAssignedModel(event);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().firstName()).isNull();
+        assertThat(result.get().photoUrl()).isNull();
+    }
+
+    @Test
+    void findAssignedModels_batchesAcrossEvents_onlyIncludingAssignedOnes() {
+        User organizer = organizer(1L);
+        Event assignedEvent = event(organizer);
+        assignedEvent.setId(20L);
+        Event unassignedEvent = event(organizer);
+        unassignedEvent.setId(21L);
+
+        User model = model(2L);
+        EventApplication accepted = new EventApplication(assignedEvent, model, ApplicationInitiator.MODEL, null);
+        accepted.setStatus(ApplicationStatus.ACCEPTED);
+        when(eventApplicationRepository.findByEventAndStatus(assignedEvent, ApplicationStatus.ACCEPTED)).thenReturn(Optional.of(accepted));
+        when(eventApplicationRepository.findByEventAndStatus(unassignedEvent, ApplicationStatus.ACCEPTED)).thenReturn(Optional.empty());
+        when(modelProfileService.findByUser(model)).thenReturn(Optional.empty());
+
+        java.util.Map<Long, AssignedModelView> result = service.findAssignedModels(List.of(assignedEvent, unassignedEvent));
+
+        assertThat(result).containsOnlyKeys(20L);
     }
 }

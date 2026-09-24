@@ -102,4 +102,44 @@ class EventDetailControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("existingApplication"));
     }
+
+    @Test
+    void view_noAcceptedModel_assignedModelAttributeIsAbsentValue() throws Exception {
+        User organizer = User.builder().id(1L).email("organizer@example.com").role(Role.ORGANIZER).build();
+        Event event = new Event(organizer);
+        event.setId(5L);
+        event.setEventType(new EventType("Gesture"));
+        event.setTitle("Gesture Night");
+        event.setCity("Portland");
+        event.setLocation("123 Main St");
+        event.setStartTime(LocalDateTime.now().plusDays(1));
+        when(eventService.findById(5L)).thenReturn(Optional.of(event));
+        when(organizerProfileService.findByUser(any())).thenReturn(Optional.empty());
+        when(eventApplicationService.findAssignedModel(event)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/events/5"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("assignedModel", (Object) null));
+    }
+
+    @Test
+    void view_acceptedModel_assignedModelAttributePopulated() throws Exception {
+        User organizer = User.builder().id(1L).email("organizer@example.com").role(Role.ORGANIZER).build();
+        Event event = new Event(organizer);
+        event.setId(5L);
+        event.setEventType(new EventType("Gesture"));
+        event.setTitle("Gesture Night");
+        event.setCity("Portland");
+        event.setLocation("123 Main St");
+        event.setStartTime(LocalDateTime.now().plusDays(1));
+        when(eventService.findById(5L)).thenReturn(Optional.of(event));
+        when(organizerProfileService.findByUser(any())).thenReturn(Optional.empty());
+        com.contrapposto.app.service.AssignedModelView view =
+                new com.contrapposto.app.service.AssignedModelView("Ava", "https://example.com/ava.jpg");
+        when(eventApplicationService.findAssignedModel(event)).thenReturn(Optional.of(view));
+
+        mockMvc.perform(get("/events/5"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("assignedModel", view));
+    }
 }

@@ -17,6 +17,8 @@ public interface EventApplicationRepository extends JpaRepository<EventApplicati
 
     Optional<EventApplication> findByEventAndModelAndStatusIn(Event event, User model, List<ApplicationStatus> statuses);
 
+    Optional<EventApplication> findByEventAndStatus(Event event, ApplicationStatus status);
+
     List<EventApplication> findByModelOrderByCreatedAtDesc(User model);
 
     List<EventApplication> findByEvent_OrganizerOrderByCreatedAtDesc(User organizer);

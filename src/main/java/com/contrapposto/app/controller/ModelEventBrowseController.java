@@ -1,6 +1,8 @@
 package com.contrapposto.app.controller;
 
+import com.contrapposto.app.model.Event;
 import com.contrapposto.app.security.UserPrincipal;
+import com.contrapposto.app.service.EventApplicationService;
 import com.contrapposto.app.service.EventService;
 import com.contrapposto.app.service.ModelProfileService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -10,15 +12,20 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 public class ModelEventBrowseController {
 
     private final EventService eventService;
     private final ModelProfileService modelProfileService;
+    private final EventApplicationService eventApplicationService;
 
-    public ModelEventBrowseController(EventService eventService, ModelProfileService modelProfileService) {
+    public ModelEventBrowseController(EventService eventService, ModelProfileService modelProfileService,
+                                       EventApplicationService eventApplicationService) {
         this.eventService = eventService;
         this.modelProfileService = modelProfileService;
+        this.eventApplicationService = eventApplicationService;
     }
 
     @GetMapping("/model/events")
@@ -29,7 +36,9 @@ public class ModelEventBrowseController {
         // stubbornly reapplying the profile default after the model has already changed the filter.
         String effectiveCity = city != null ? city : modelProfileService.getOrCreateProfile(principal.getUser()).getCity();
         if (StringUtils.hasText(effectiveCity)) {
-            model.addAttribute("events", eventService.upcomingByCity(effectiveCity.trim()));
+            List<Event> events = eventService.upcomingByCity(effectiveCity.trim());
+            model.addAttribute("events", events);
+            model.addAttribute("assignedModels", eventApplicationService.findAssignedModels(events));
         }
         model.addAttribute("city", effectiveCity);
         return "model/events";

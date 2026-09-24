@@ -7,6 +7,8 @@ import com.contrapposto.app.repository.ModelProfileRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
+
 @Service
 public class ModelProfileServiceImpl implements ModelProfileService {
 
@@ -57,5 +59,10 @@ public class ModelProfileServiceImpl implements ModelProfileService {
             photoStorageService.delete(photoUrl);
         }
         return modelProfileRepository.save(profile);
+    }
+
+    @Override
+    public Optional<ModelProfile> findByUser(User user) {
+        return modelProfileRepository.findById(user.getId());
     }
 }

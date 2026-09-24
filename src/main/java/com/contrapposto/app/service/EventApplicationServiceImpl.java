@@ -8,14 +8,18 @@ import com.contrapposto.app.model.Event;
 import com.contrapposto.app.model.EventApplication;
 import com.contrapposto.app.model.Role;
 import com.contrapposto.app.model.User;
+import com.contrapposto.app.model.ModelProfile;
 import com.contrapposto.app.repository.EventApplicationRepository;
 import com.contrapposto.app.repository.UserRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -35,15 +39,17 @@ public class EventApplicationServiceImpl implements EventApplicationService {
     private final EventService eventService;
     private final UserRepository userRepository;
     private final SubscriptionService subscriptionService;
+    private final ModelProfileService modelProfileService;
     private final ApplicationEventPublisher eventPublisher;
 
     public EventApplicationServiceImpl(EventApplicationRepository eventApplicationRepository, EventService eventService,
                                         UserRepository userRepository, SubscriptionService subscriptionService,
-                                        ApplicationEventPublisher eventPublisher) {
+                                        ModelProfileService modelProfileService, ApplicationEventPublisher eventPublisher) {
         this.eventApplicationRepository = eventApplicationRepository;
         this.eventService = eventService;
         this.userRepository = userRepository;
         this.subscriptionService = subscriptionService;
+        this.modelProfileService = modelProfileService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -74,7 +80,10 @@ public class EventApplicationServiceImpl implements EventApplicationService {
 
     @Override
     public Optional<EventApplication> accept(User actor, Long applicationId) {
-        return findRespondable(actor, applicationId).map(application -> decide(application, ApplicationStatus.ACCEPTED));
+        return findRespondable(actor, applicationId).map(application -> {
+            requireEventNotAlreadyAssigned(application);
+            return decide(application, ApplicationStatus.ACCEPTED);
+        });
     }
 
     @Override
@@ -111,6 +120,39 @@ public class EventApplicationServiceImpl implements EventApplicationService {
     @Override
     public boolean hasPriorDecline(Event event, User model) {
         return eventApplicationRepository.existsByEventAndModelAndStatus(event, model, ApplicationStatus.DECLINED);
+    }
+
+    @Override
+    public Optional<AssignedModelView> findAssignedModel(Event event) {
+        return eventApplicationRepository.findByEventAndStatus(event, ApplicationStatus.ACCEPTED)
+                .map(application -> {
+                    User model = application.getModel();
+                    Optional<ModelProfile> profile = modelProfileService.findByUser(model);
+                    String firstName = profile.map(ModelProfile::getDisplayName)
+                            .filter(StringUtils::hasText)
+                            .map(EventApplicationServiceImpl::firstNameOf)
+                            .orElse(null);
+                    String photoUrl = profile.map(ModelProfile::getPhotoUrls)
+                            .filter(urls -> !urls.isEmpty())
+                            .map(urls -> urls.get(0))
+                            .orElse(null);
+                    return new AssignedModelView(firstName, photoUrl);
+                });
+    }
+
+    @Override
+    public Map<Long, AssignedModelView> findAssignedModels(List<Event> events) {
+        Map<Long, AssignedModelView> result = new HashMap<>();
+        for (Event event : events) {
+            findAssignedModel(event).ifPresent(view -> result.put(event.getId(), view));
+        }
+        return result;
+    }
+
+    private static String firstNameOf(String displayName) {
+        String trimmed = displayName.trim();
+        int spaceIndex = trimmed.indexOf(' ');
+        return spaceIndex == -1 ? trimmed : trimmed.substring(0, spaceIndex);
     }
 
     private EventApplication save(EventApplication application) {
@@ -155,6 +197,17 @@ public class EventApplicationServiceImpl implements EventApplicationService {
     private void requireNoActiveRow(Event event, User model) {
         if (eventApplicationRepository.existsByEventAndModelAndStatusIn(event, model, ACTIVE_STATUSES)) {
             throw new IllegalStateException("An active application or invitation already exists for this model and event");
+        }
+    }
+
+    // An event has at most one assigned model. This only guards the ACCEPTED transition itself --
+    // an event can still have several PENDING applications/invitations in flight; whichever is
+    // accepted first wins, and any other accept attempt after that fails here. (`application` is
+    // always still PENDING at this point per findRespondable's filter, so it's never the row this
+    // check finds.)
+    private void requireEventNotAlreadyAssigned(EventApplication application) {
+        if (eventApplicationRepository.findByEventAndStatus(application.getEvent(), ApplicationStatus.ACCEPTED).isPresent()) {
+            throw new IllegalStateException("This event already has an assigned model");
         }
     }
 }

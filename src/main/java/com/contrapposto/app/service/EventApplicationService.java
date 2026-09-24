@@ -5,6 +5,7 @@ import com.contrapposto.app.model.EventApplication;
 import com.contrapposto.app.model.User;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface EventApplicationService {
@@ -30,6 +31,9 @@ public interface EventApplicationService {
      * the correct responder (the organizer for a model-initiated row, the model for an
      * organizer-initiated one) -- deliberately not distinguished, matching EventService's
      * ownership-lookup pattern.
+     *
+     * @throws IllegalStateException if the event already has a different ACCEPTED application --
+     *                                an event has at most one assigned model
      */
     Optional<EventApplication> accept(User actor, Long applicationId);
 
@@ -65,4 +69,16 @@ public interface EventApplicationService {
      * hint, not enforced as a block.
      */
     boolean hasPriorDecline(Event event, User model);
+
+    /**
+     * A public-safe (first name + primary photo only) summary of the model accepted for this
+     * event, if any. Empty if no application has been accepted yet.
+     */
+    Optional<AssignedModelView> findAssignedModel(Event event);
+
+    /**
+     * Batch form of {@link #findAssignedModel} for a listing page showing several events, keyed
+     * by event id -- an event with no accepted model is simply absent from the map.
+     */
+    Map<Long, AssignedModelView> findAssignedModels(List<Event> events);
 }

@@ -3,6 +3,7 @@ package com.contrapposto.app.controller;
 import com.contrapposto.app.dto.EventRequest;
 import com.contrapposto.app.model.Event;
 import com.contrapposto.app.security.UserPrincipal;
+import com.contrapposto.app.service.EventApplicationService;
 import com.contrapposto.app.service.EventService;
 import com.contrapposto.app.service.EventTypeService;
 import com.contrapposto.app.service.SubscriptionService;
@@ -17,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping("/organizer/events")
@@ -25,17 +27,21 @@ public class EventController {
     private final EventService eventService;
     private final EventTypeService eventTypeService;
     private final SubscriptionService subscriptionService;
+    private final EventApplicationService eventApplicationService;
 
     public EventController(EventService eventService, EventTypeService eventTypeService,
-                            SubscriptionService subscriptionService) {
+                            SubscriptionService subscriptionService, EventApplicationService eventApplicationService) {
         this.eventService = eventService;
         this.eventTypeService = eventTypeService;
         this.subscriptionService = subscriptionService;
+        this.eventApplicationService = eventApplicationService;
     }
 
     @GetMapping
     public String list(@AuthenticationPrincipal UserPrincipal principal, Model model) {
-        model.addAttribute("events", eventService.findByOrganizer(principal.getUser()));
+        List<Event> events = eventService.findByOrganizer(principal.getUser());
+        model.addAttribute("events", events);
+        model.addAttribute("assignedModels", eventApplicationService.findAssignedModels(events));
         model.addAttribute("now", LocalDateTime.now());
         return "organizer/events";
     }

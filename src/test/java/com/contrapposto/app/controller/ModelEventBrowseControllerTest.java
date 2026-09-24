@@ -10,6 +10,7 @@ import com.contrapposto.app.security.CustomUserDetailsService;
 import com.contrapposto.app.security.FormLoginSuccessHandler;
 import com.contrapposto.app.security.OAuth2AuthenticationSuccessHandler;
 import com.contrapposto.app.security.UserPrincipal;
+import com.contrapposto.app.service.EventApplicationService;
 import com.contrapposto.app.service.EventService;
 import com.contrapposto.app.service.ModelProfileService;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,9 @@ class ModelEventBrowseControllerTest {
 
     @MockitoBean
     private ModelProfileService modelProfileService;
+
+    @MockitoBean
+    private EventApplicationService eventApplicationService;
 
     @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
@@ -97,7 +101,8 @@ class ModelEventBrowseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("model/events"))
                 .andExpect(model().attribute("city", "Portland"))
-                .andExpect(model().attributeExists("events"));
+                .andExpect(model().attributeExists("events"))
+                .andExpect(model().attributeExists("assignedModels"));
     }
 
     @Test

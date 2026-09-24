@@ -121,6 +121,16 @@ class ModelApplicationControllerTest {
     }
 
     @Test
+    void accept_eventAlreadyAssigned_redirectsWithErrorFlashInsteadOfPropagating() throws Exception {
+        when(eventApplicationService.accept(any(), eq(1L)))
+                .thenThrow(new IllegalStateException("This event already has an assigned model"));
+
+        mockMvc.perform(post("/model/applications/1/accept").with(user(new UserPrincipal(modelUser()))).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/model/applications"));
+    }
+
+    @Test
     void decline_found_redirectsToInbox() throws Exception {
         when(eventApplicationService.decline(any(), eq(1L))).thenReturn(Optional.of(application(1L)));
 
