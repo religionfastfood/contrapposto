@@ -91,10 +91,10 @@ Always write unit tests alongside new code. All tests must pass before any code 
 ## Build Phases
 
 - **Phase 1 — Foundation** ✅ COMPLETE — User/auth/registration/dashboards
-- **Phase 2 — Stripe Subscriptions** — Checkout, webhooks, subscription enforcement
-- **Phase 3 — Profiles & Photos** — ModelProfile, OrganizerProfile, AWS S3 photo upload
-- **Phase 4 — Model Search & Public Profiles** — Public read-only model profile view, organizer-facing model search/browse by city, lapsed-model hiding per subscription rules
-- **Phase 5 — Events** — Event CRUD, EventType, public listings by city, event detail page
-- **Phase 6 — Applications & Invitations** — Apply/invite flows, approve/decline, email notifications
+- **Phase 2 — Stripe Subscriptions** ✅ COMPLETE — Checkout, webhooks, subscription enforcement
+- **Phase 3 — Profiles & Photos** ✅ COMPLETE — ModelProfile, OrganizerProfile, AWS S3 photo upload
+- **Phase 4 — Model Search & Public Profiles** ✅ COMPLETE — Public read-only model profile view, organizer-facing model search/browse by city, lapsed-model hiding per subscription rules
+- **Phase 5 — Events** ✅ COMPLETE — Event CRUD, EventType, public listings by city, event detail page
+- **Phase 6 — Applications & Invitations** ✅ COMPLETE (on branch `phase-6`, not yet merged to `master`) — Apply/invite flows, approve/decline, event-driven notification plumbing (log-only stub; real email deferred)
 
 **Future:** In-app event ticketing via Stripe (design Events with this in mind — store price as amount+currency, keep ticketing as separate entities).
