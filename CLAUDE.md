@@ -48,6 +48,7 @@ Server-side-rendered app. Thymeleaf renders full pages; HTMX handles partial upd
 - `model/` — JPA entities and enums (`User`, `Role`, `AuthProvider`)
 - `repository/` — Spring Data JPA repositories
 - `dto/` — Form-binding objects (`RegisterRequest`)
+- `event/` — Domain events published via `ApplicationEventPublisher` (e.g. `ApplicationSubmittedEvent`); consumed by `@Async @TransactionalEventListener(AFTER_COMMIT)` listeners in `service/` so side effects like notifications never fire for a transaction that rolls back
 - `service/` — Business logic interfaces + implementations
 - `security/` — `UserPrincipal`, `CustomUserDetailsService`, success handlers
 - `config/` — `SecurityConfig`
@@ -90,10 +91,13 @@ Always write unit tests alongside new code. All tests must pass before any code 
 ## Build Phases
 
 - **Phase 1 — Foundation** ✅ COMPLETE — User/auth/registration/dashboards
-- **Phase 2 — Stripe Subscriptions** — Checkout, webhooks, subscription enforcement
-- **Phase 3 — Profiles & Photos** — ModelProfile, OrganizerProfile, AWS S3 photo upload
-- **Phase 4 — Model Search & Public Profiles** — Public read-only model profile view, organizer-facing model search/browse by city, lapsed-model hiding per subscription rules
-- **Phase 5 — Events** — Event CRUD, EventType, public listings by city, event detail page
-- **Phase 6 — Applications & Invitations** — Apply/invite flows, approve/decline, email notifications
+- **Phase 2 — Stripe Subscriptions** ✅ COMPLETE — Checkout, webhooks, subscription enforcement
+- **Phase 3 — Profiles & Photos** ✅ COMPLETE — ModelProfile, OrganizerProfile, AWS S3 photo upload
+- **Phase 4 — Model Search & Public Profiles** ✅ COMPLETE — Public read-only model profile view, organizer-facing model search/browse by city, lapsed-model hiding per subscription rules
+- **Phase 5 — Events** ✅ COMPLETE — Event CRUD, EventType, public listings by city, event detail page
+- **Phase 6 — Applications & Invitations** ✅ COMPLETE (on branch `phase-6`, not yet merged to `master`) — Apply/invite flows, approve/decline, event-driven notification plumbing (log-only stub; real email deferred)
 
-**Future:** In-app event ticketing via Stripe (design Events with this in mind — store price as amount+currency, keep ticketing as separate entities).
+**Future / Backlog:**
+- In-app event ticketing via Stripe (design Events with this in mind — store price as amount+currency, keep ticketing as separate entities).
+- **Model-facing event browsing.** The model dashboard's "Browse Events" currently just links to the public homepage's city search, which works but isn't tailored. A dedicated view would default to the model's own profile city, while still letting them change the city filter within that view — rather than reusing the anonymous-visitor homepage search as-is.
+- **Show the assigned model on the event listing/detail pages.** Events currently display no model information at all. Should show a placeholder (e.g. "Model: TBA") until an `EventApplication` for that event reaches `ACCEPTED`, at which point show that model's name and primary photo. Ties into the existing lapsed-model rule (CLAUDE.md's "Lapsed model: hidden from search, but still shown on assigned events") — this is the feature that rule was written for, and isn't built yet.

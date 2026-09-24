@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/layout :: head(${event.title})}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
@@ -7,6 +8,9 @@
 <div class="container py-5" style="max-width: 760px;">
 
     <a th:href="@{/}" class="text-muted small d-inline-block mb-3">&larr; Back to home</a>
+
+    <div th:if="${success}" class="alert alert-success mb-3" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger mb-3" th:text="${error}"></div>
 
     <span class="badge rounded-pill d-block mb-2" style="background-color: var(--accent); color: var(--white); width: fit-content;"
           th:text="${event.eventType.name}">Type</span>
@@ -38,6 +42,26 @@
         <div th:if="${not #strings.isEmpty(event.externalLink)}">
             <h6 class="fw-bold">Learn more</h6>
             <a th:href="${event.externalLink}" th:text="${event.externalLink}" target="_blank" rel="noopener noreferrer">Link</a>
+        </div>
+    </div>
+
+    <div class="card p-4 mt-4" sec:authorize="hasRole('MODEL')">
+        <div th:if="${existingApplication == null}">
+            <h6 class="fw-bold mb-3">Apply for this session</h6>
+            <form th:action="@{/model/events/{id}/apply(id=${event.id})}" method="post">
+                <div class="mb-3">
+                    <label class="form-label small">Message to the organizer (optional)</label>
+                    <textarea name="message" class="form-control" rows="3" maxlength="1000"></textarea>
+                </div>
+                <button type="submit" class="btn btn-accent">Apply</button>
+            </form>
+        </div>
+        <div th:if="${existingApplication != null}">
+            <h6 class="fw-bold mb-1">Your status for this session</h6>
+            <p class="text-muted mb-0"
+               th:text="${existingApplication.initiatedBy.name() == 'MODEL'} ? ('You applied - ' + ${existingApplication.status}) : ('You were invited - ' + ${existingApplication.status})">
+                Status
+            </p>
         </div>
     </div>
 

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My Applications')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container py-5">
+
+    <h2 class="fw-bold mb-1">Applications &amp; Invitations</h2>
+    <p class="text-muted mb-0">Events you've applied to, and invitations you've received.</p>
+    <hr class="section-divider mb-4"/>
+
+    <div th:if="${success}" class="alert alert-success mb-4" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger mb-4" th:text="${error}"></div>
+
+    <p th:if="${applications.isEmpty()}" class="text-muted">Nothing here yet.</p>
+
+    <div class="row g-4">
+        <div class="col-md-6" th:each="app : ${applications}">
+            <div class="card h-100 p-4">
+                <span class="badge rounded-pill mb-2" style="background-color: var(--accent); color: var(--white); width: fit-content;"
+                      th:text="${app.initiatedBy.name() == 'MODEL'} ? 'You applied' : 'Invitation received'">Direction</span>
+                <h5 class="fw-bold mb-1" th:text="${app.event.title}">Event title</h5>
+                <p class="text-muted small mb-1"
+                   th:text="${#temporals.format(app.event.startTime, 'MMM d, yyyy h:mm a')} + ' &middot; ' + ${app.event.city}">
+                    When &middot; City
+                </p>
+                <p class="mb-2"><strong>Status:</strong> <span th:text="${app.status}">PENDING</span></p>
+                <p th:if="${not #strings.isEmpty(app.message)}" class="mb-2" th:text="${app.message}">Message</p>
+
+                <div class="d-flex gap-2 mt-auto">
+                    <a th:href="@{/events/{id}(id=${app.event.id})}" class="btn btn-outline-secondary btn-sm">View event</a>
+
+                    <th:block th:if="${app.status.name() == 'PENDING' and app.initiatedBy.name() == 'ORGANIZER'}">
+                        <form th:action="@{/model/applications/{id}/accept(id=${app.id})}" method="post" class="m-0">
+                            <button type="submit" class="btn btn-accent btn-sm">Accept</button>
+                        </form>
+                        <form th:action="@{/model/applications/{id}/decline(id=${app.id})}" method="post" class="m-0">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">Decline</button>
+                        </form>
+                    </th:block>
+
+                    <form th:if="${app.status.name() == 'PENDING' and app.initiatedBy.name() == 'MODEL'}"
+                          th:action="@{/model/applications/{id}/withdraw(id=${app.id})}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Withdraw</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
