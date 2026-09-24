@@ -99,6 +99,18 @@ class ModelProfileServiceImplTest {
         verify(modelProfileRepository).save(profile);
     }
 
+    @Test
+    void updateProfile_displayNameWithLeadingOrTrailingWhitespace_isTrimmed() {
+        User user = userWithId(10L);
+        when(modelProfileRepository.findById(10L)).thenReturn(Optional.empty());
+        ModelProfileRequest request = new ModelProfileRequest();
+        request.setDisplayName("  Ava Chen  ");
+
+        ModelProfile profile = service.updateProfile(user, request);
+
+        assertThat(profile.getDisplayName()).isEqualTo("Ava Chen");
+    }
+
     // --- addPhoto ---
 
     @Test

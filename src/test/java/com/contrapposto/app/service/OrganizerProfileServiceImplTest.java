@@ -69,6 +69,18 @@ class OrganizerProfileServiceImplTest {
     }
 
     @Test
+    void updateProfile_displayNameWithLeadingOrTrailingWhitespace_isTrimmed() {
+        User user = userWithId(5L);
+        when(organizerProfileRepository.findById(5L)).thenReturn(Optional.empty());
+        OrganizerProfileRequest request = new OrganizerProfileRequest();
+        request.setDisplayName("  Life Drawing Co  ");
+
+        OrganizerProfile profile = service.updateProfile(user, request);
+
+        assertThat(profile.getDisplayName()).isEqualTo("Life Drawing Co");
+    }
+
+    @Test
     void findByUser_existingProfile_returnsItWithoutCreating() {
         User user = userWithId(3L);
         OrganizerProfile existing = new OrganizerProfile(user);

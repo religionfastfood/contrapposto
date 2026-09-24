@@ -5,6 +5,7 @@ import com.contrapposto.app.model.OrganizerProfile;
 import com.contrapposto.app.model.User;
 import com.contrapposto.app.repository.OrganizerProfileRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
@@ -26,7 +27,9 @@ public class OrganizerProfileServiceImpl implements OrganizerProfileService {
     @Override
     public OrganizerProfile updateProfile(User user, OrganizerProfileRequest request) {
         OrganizerProfile profile = getOrCreateProfile(user);
-        profile.setDisplayName(request.getDisplayName());
+        // Trimmed so a leading/trailing space doesn't sneak into the dashboard's
+        // first-name extraction (#strings.substringBefore(name, ' ')) and produce a blank name.
+        profile.setDisplayName(StringUtils.trimWhitespace(request.getDisplayName()));
         profile.setOrgInfo(request.getOrgInfo());
         profile.setCity(request.getCity());
         return organizerProfileRepository.save(profile);

@@ -5,6 +5,7 @@ import com.contrapposto.app.model.ModelProfile;
 import com.contrapposto.app.model.User;
 import com.contrapposto.app.repository.ModelProfileRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
@@ -32,7 +33,9 @@ public class ModelProfileServiceImpl implements ModelProfileService {
     @Override
     public ModelProfile updateProfile(User user, ModelProfileRequest request) {
         ModelProfile profile = getOrCreateProfile(user);
-        profile.setDisplayName(request.getDisplayName());
+        // Trimmed so a leading/trailing space doesn't sneak into the dashboard's
+        // first-name extraction (#strings.substringBefore(name, ' ')) and produce a blank name.
+        profile.setDisplayName(StringUtils.trimWhitespace(request.getDisplayName()));
         profile.setBio(request.getBio());
         profile.setContactInfo(request.getContactInfo());
         profile.setSocialMediaLinks(request.getSocialMediaLinks());
